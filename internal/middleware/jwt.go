@@ -12,13 +12,13 @@ import (
 // middleware/claims.go 或直接在 middleware 包中定义
 type AccessTokenClaims struct {
 	Username string `json:"username" inject:"username"` // inject 到 gin.Context 的 key
-	UserID   int    `json:"id"       inject:"user_id"`
+	UserID   int64    `json:"id"       inject:"user_id"`
 	jwtx.RegisteredClaims
 }
 
 var JWTAuthMiddleware func() gin.HandlerFunc
 
-func GenerateAccessToken(username string, userID int) (string, error) {
+func GenerateAccessToken(username string, userID int64) (string, error) {
 	claims := &AccessTokenClaims{
 		Username: username,
 		UserID:   userID,

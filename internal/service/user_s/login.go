@@ -31,7 +31,7 @@ func (s *UserServiceImpl) Login(ctx context.Context, req *dto.LoginRequest) (res
 	}
 
 	// 生成访问令牌 (JWT)
-	accessToken, err := middleware.GenerateAccessToken(user.Name, int(user.ID))
+	accessToken, err := middleware.GenerateAccessToken(user.Name, user.ID)
 	if err != nil {
 		return nil, errors.ErrTokenGenerationFailed
 	}
@@ -43,7 +43,7 @@ func (s *UserServiceImpl) Login(ctx context.Context, req *dto.LoginRequest) (res
 	}
 
 	// 保存刷新令牌到Redis
-	if err := s.userRepo.SaveRefreshToken(ctx, int64(user.ID), refreshToken); err != nil {
+	if err := s.userRepo.SaveRefreshToken(ctx, refreshToken, user.Name, user.ID); err != nil {
 		return nil, errors.ErrTokenSaveFailed
 	}
 
@@ -60,18 +60,16 @@ func (s *UserServiceImpl) Login(ctx context.Context, req *dto.LoginRequest) (res
 // RevokeRefreshToken 撤销用户的刷新令牌
 // 注意：由于我们现在的刷新令牌是随机字符串，我们无法直接从中提取用户ID
 // 因此我们需要客户端在登出时同时提供用户ID和刷新令牌
-func (s *UserServiceImpl) RevokeRefreshToken(ctx context.Context, userID int64, refreshToken string) error {
+func (s *UserServiceImpl) RevokeRefreshToken(ctx context.Context, refreshToken string) error {
 	// 直接从Redis中删除刷新令牌
-	// 在新的实现中，ValidateRefreshToken已经移到了repository层
-	// 这里我们只需要调用repository的RevokeRefreshToken方法即可
-	if err := s.userRepo.RevokeRefreshToken(ctx, userID, refreshToken); err != nil {
+	if err := s.userRepo.RevokeRefreshToken(ctx, refreshToken); err != nil {
 		return errors.ErrTokenRevokeFailed
 	}
 
 	return nil
 }
 
-// GetUserIDByRefreshToken 根据刷新令牌获取用户ID
-func (s *UserServiceImpl) GetUserIDByRefreshToken(ctx context.Context, refreshToken string) (int64, error) {
-	return s.userRepo.GetUserIDByRefreshToken(ctx, refreshToken)
+// GetUserNameAndIDByRefreshToken 根据刷新令牌获取用户名和ID
+func (s *UserServiceImpl) GetUserNameAndIDByRefreshToken(ctx context.Context, refreshToken string) (string, int64, error) {
+	return s.userRepo.GetUserNameAndIDByRefreshToken(ctx, refreshToken)
 }

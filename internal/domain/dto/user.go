@@ -12,7 +12,7 @@ type RegisterRequest struct {
 type RegisterResponse struct {
 	Result bool   `json:"result"`
 	Msg    string `json:"msg"`
-	ID     uint   `json:"id,omitempty"`
+	ID     int64   `json:"id,omitempty"`
 	Name   string `json:"name,omitempty"`
 	Error  string `json:"error,omitempty"`
 }
@@ -30,7 +30,7 @@ type LoginResponse struct {
 	AccessToken  string `json:"accessToken,omitempty"`
 	RefreshToken string `json:"-"` // 内部使用，不序列化到JSON
 	Name         string `json:"name,omitempty"`
-	ID           uint   `json:"id,omitempty"`
+	ID           int64   `json:"id,omitempty"`
 	Error        string `json:"error,omitempty"`
 }
 

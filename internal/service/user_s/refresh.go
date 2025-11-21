@@ -10,13 +10,13 @@ import (
 // Refresh 使用刷新令牌获取新的访问令牌
 func (s *UserServiceImpl) Refresh(ctx context.Context, refreshToken string) (resp *dto.LoginResponse, err error) {
 	// 根据刷新令牌获取用户ID
-	userID, err := s.GetUserIDByRefreshToken(ctx, refreshToken)
+	username, userID, err := s.GetUserNameAndIDByRefreshToken(ctx, refreshToken)
 	if err != nil {
 		return nil, errors.ErrInvalidToken
 	}
 
 	// 验证刷新令牌是否有效
-	valid, err := s.userRepo.ValidateRefreshToken(ctx, userID, refreshToken)
+	valid, err := s.userRepo.ValidateRefreshToken(ctx,  refreshToken)
 	if err != nil {
 		return nil, errors.ErrInternal
 	}
@@ -31,7 +31,7 @@ func (s *UserServiceImpl) Refresh(ctx context.Context, refreshToken string) (res
 	}
 
 	// 生成新的访问令牌
-	accessToken, err := middleware.GenerateAccessToken(user.Name, int(user.ID))
+	accessToken, err := middleware.GenerateAccessToken(user.Name, user.ID)
 	if err != nil {
 		return nil, errors.ErrTokenGenerationFailed
 	}
@@ -43,12 +43,12 @@ func (s *UserServiceImpl) Refresh(ctx context.Context, refreshToken string) (res
 	}
 
 	// 删除旧的刷新令牌
-	if err := s.userRepo.RevokeRefreshToken(ctx, userID, refreshToken); err != nil {
+	if err := s.userRepo.RevokeRefreshToken(ctx, refreshToken); err != nil {
 		return nil, errors.ErrTokenRevokeFailed
 	}
 
 	// 保存新的刷新令牌
-	if err := s.userRepo.SaveRefreshToken(ctx, userID, newRefreshToken); err != nil {
+	if err := s.userRepo.SaveRefreshToken(ctx, newRefreshToken, username, userID); err != nil {
 		return nil, errors.ErrTokenSaveFailed
 	}
 

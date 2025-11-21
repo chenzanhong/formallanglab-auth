@@ -155,18 +155,8 @@ func (h *UserHandler) Logout(c *gin.Context) {
 		return
 	}
 
-	// 从上下文中获取用户ID（需要在JWT中间件中设置）
-	userIDValue, exists := c.Get("user_id")
-	if !exists {
-		// 如果无法获取用户ID，仍然尝试撤销刷新令牌
-		// 这里我们使用一个默认的用户ID，实际应用中应该有更好的处理方式
-		h.userService.RevokeRefreshToken(c.Request.Context(), 0, refreshToken)
-	} else {
-		// 调用服务层撤销刷新令牌
-		userID, ok := userIDValue.(int)
-		if ok {
-			h.userService.RevokeRefreshToken(c.Request.Context(), int64(userID), refreshToken)
-		}
+	if err = h.userService.RevokeRefreshToken(c.Request.Context(), refreshToken); err != nil {
+
 	}
 
 	// 清除Cookie中的刷新令牌

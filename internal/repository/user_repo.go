@@ -33,10 +33,10 @@ type UserRepository interface {
 	DeleteUserByName(ctx context.Context, name string) error
 
 	// Refresh token 相关方法
-	SaveRefreshToken(ctx context.Context, userID int64, refreshToken string) error
-	ValidateRefreshToken(ctx context.Context, userID int64, refreshToken string) (bool, error)
-	RevokeRefreshToken(ctx context.Context, userID int64, refreshToken string) error
-	GetUserIDByRefreshToken(ctx context.Context, refreshToken string) (int64, error)
+	SaveRefreshToken(ctx context.Context, refreshToken string, username string, userID int64) error
+	ValidateRefreshToken(ctx context.Context, refreshToken string) (bool, error)
+	RevokeRefreshToken(ctx context.Context, refreshToken string) error
+	GetUserNameAndIDByRefreshToken(ctx context.Context, refreshToken string) (string, int64, error)
 }
 
 type UserRepositoryImpl struct {
@@ -138,16 +138,17 @@ func (r *UserRepositoryImpl) DeleteUserByName(ctx context.Context, name string) 
 
 // SaveRefreshToken 保存refresh token到Redis
 // 新机制：使用 refresh token 作为 key，用户 ID 作为 value
-func (r *UserRepositoryImpl) SaveRefreshToken(ctx context.Context, userID int64, refreshToken string) error {
+func (r *UserRepositoryImpl) SaveRefreshToken(ctx context.Context, refreshToken string, username string, userID int64) error {
 	key := fmt.Sprintf("refresh_token:%s", refreshToken)
 	// 保存refresh token，设置30天过期时间
-	return r.Redis.Set(ctx, key, userID, 30*24*time.Hour).Err()
+	value := fmt.Sprintf("%s:%d", username, userID)
+	return r.Redis.Set(ctx, key, value, 30*24*time.Hour).Err()
 }
 
 // ValidateRefreshToken 验证refresh token是否有效
-func (r *UserRepositoryImpl) ValidateRefreshToken(ctx context.Context, userID int64, refreshToken string) (bool, error) {
+func (r *UserRepositoryImpl) ValidateRefreshToken(ctx context.Context, refreshToken string) (bool, error) {
 	key := fmt.Sprintf("refresh_token:%s", refreshToken)
-	storedUserID, err := r.Redis.Get(ctx, key).Result()
+	_, err := r.Redis.Get(ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
 		return false, nil
 	}
@@ -155,35 +156,31 @@ func (r *UserRepositoryImpl) ValidateRefreshToken(ctx context.Context, userID in
 		return false, err
 	}
 
-	// 检查存储的用户 ID 是否与提供的用户 ID 相匹配
-	var storedID int64
-	fmt.Sscanf(storedUserID, "%d", &storedID)
-	return storedID == userID, nil
+	return true, nil
 }
 
 // RevokeRefreshToken 删除refresh token
-func (r *UserRepositoryImpl) RevokeRefreshToken(ctx context.Context, userID int64, refreshToken string) error {
+func (r *UserRepositoryImpl) RevokeRefreshToken(ctx context.Context, refreshToken string) error {
 	key := fmt.Sprintf("refresh_token:%s", refreshToken)
-	// 直接删除refresh token，不验证是否匹配
 	return r.Redis.Del(ctx, key).Err()
 }
 
 // GetUserIDByRefreshToken 根据refresh token获取用户ID
-func (r *UserRepositoryImpl) GetUserIDByRefreshToken(ctx context.Context, refreshToken string) (int64, error) {
+func (r *UserRepositoryImpl) GetUserNameAndIDByRefreshToken(ctx context.Context, refreshToken string) (string, int64, error) {
 	key := fmt.Sprintf("refresh_token:%s", refreshToken)
-	userIDStr, err := r.Redis.Get(ctx, key).Result()
+	userStr, err := r.Redis.Get(ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
-		return 0, fmt.Errorf("refresh token not found")
+		return "", 0, fmt.Errorf("refresh token not found")
 	}
 	if err != nil {
-		return 0, err
+		return "", 0, err
 	}
-
+	var username string
 	var userID int64
-	_, err = fmt.Sscanf(userIDStr, "%d", &userID)
+	_, err = fmt.Sscanf(userStr, "%s:%d", &username, &userID)
 	if err != nil {
-		return 0, fmt.Errorf("invalid user ID format")
+		return "", 0, fmt.Errorf("invalid user ID format")
 	}
 
-	return userID, nil
+	return username, userID, nil
 }
