@@ -1,0 +1,40 @@
+package middleware
+
+import (
+	"crypto/rand"
+	"encoding/hex"
+	"time"
+
+	"github.com/chenzanhong/goutil/jwtx"
+	"github.com/gin-gonic/gin"
+)
+
+// middleware/claims.go 或直接在 middleware 包中定义
+type AccessTokenClaims struct {
+	Username string `json:"username" inject:"username"` // inject 到 gin.Context 的 key
+	UserID   int    `json:"id"       inject:"user_id"`
+	jwtx.RegisteredClaims
+}
+
+var JWTAuthMiddleware func() gin.HandlerFunc
+
+func GenerateAccessToken(username string, userID int) (string, error) {
+	claims := &AccessTokenClaims{
+		Username: username,
+		UserID:   userID,
+		RegisteredClaims: jwtx.RegisteredClaims{
+			ExpiresAt: jwtx.NewNumericDate(time.Now().Add(15 * time.Minute)),
+			IssuedAt:  jwtx.NewNumericDate(time.Now()),
+		},
+	}
+	return jwtx.SignToken(claims) // 使用全局配置签名
+}
+
+// GenerateRandomRefreshToken 生成随机的刷新令牌
+func GenerateRandomRefreshToken() (string, error) {
+	bytes := make([]byte, 32) // 256 bits
+	if _, err := rand.Read(bytes); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(bytes), nil // e.g., "a1b2c3...f9"
+}
