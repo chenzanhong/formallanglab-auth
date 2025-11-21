@@ -124,10 +124,83 @@ func LoadConfig() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &config, nil
 }
 
-func SetEnvVariables(config Config) {
+// ApplyEnvToConfig 使用环境变量覆盖 config 中的字段（仅当环境变量非空时）
+func ApplyEnvToConfig(cfg *Config) {
+	getEnv := func(key, fallback string) string {
+		if v := os.Getenv(key); v != "" {
+			return v
+		}
+		return fallback
+	}
+	getEnvInt := func(key string, fallback int) int {
+		if v := getEnv(key, ""); v != "" {
+			if i, err := strconv.Atoi(v); err == nil {
+				return i
+			}
+		}
+		return fallback
+	}
+	getEnvBool := func(key string, fallback bool) bool {
+		if v := getEnv(key, ""); v != "" {
+			if b, err := strconv.ParseBool(v); err == nil {
+				return b
+			}
+		}
+		return fallback
+	}
+
+	// Server
+	cfg.Server.Port = getEnvInt("SERVER_PORT", cfg.Server.Port)
+	cfg.Server.MetricsPort = getEnvInt("METRICS_PORT", cfg.Server.MetricsPort)
+	cfg.Server.PprofPort = getEnvInt("PPROF_PORT", cfg.Server.PprofPort)
+	cfg.Server.EnableTrace = getEnvBool("ENABLE_TRACE", cfg.Server.EnableTrace)
+
+	// JWT
+	cfg.JWT.Key = getEnv("JWT_KEY", cfg.JWT.Key)
+
+	// PostgreSQL
+	cfg.PG.Host = getEnv("DB_HOST", cfg.PG.Host)
+	cfg.PG.Port = getEnv("DB_PORT", cfg.PG.Port)
+	cfg.PG.Name = getEnv("DB_NAME", cfg.PG.Name)
+	cfg.PG.User = getEnv("DB_USER", cfg.PG.User)
+	cfg.PG.Password = getEnv("DB_PASSWORD", cfg.PG.Password)
+
+	// Redis
+	cfg.Redis.Host = getEnv("REDIS_HOST", cfg.Redis.Host)
+	cfg.Redis.Port = getEnv("REDIS_PORT", cfg.Redis.Port)
+	cfg.Redis.Password = getEnv("REDIS_PASSWORD", cfg.Redis.Password)
+	cfg.Redis.DB = getEnvInt("REDIS_DB", cfg.Redis.DB)
+	cfg.Redis.MaxConn = getEnvInt("REDIS_MAX_CONN", cfg.Redis.MaxConn)
+	cfg.Redis.MaxIdleConn = getEnvInt("REDIS_MAX_IDLE_CONN", cfg.Redis.MaxIdleConn)
+
+	// Rate
+	cfg.Rate.UserRate = getEnvInt("RATE_USER_RATE", cfg.Rate.UserRate)
+	cfg.Rate.UserBurst = getEnvInt("RATE_USER_BURST", cfg.Rate.UserBurst)
+
+	// Kafka
+	cfg.Kafka.Brokers = getEnv("KAFKA_BROKERS", cfg.Kafka.Brokers)
+	cfg.Kafka.Topic = getEnv("KAFKA_TOPIC", cfg.Kafka.Topic)
+
+	// Log
+	// 注意：zlog.Level 需要能从字符串解析
+	if levelStr := getEnv("LOG_LEVEL", cfg.Log.Level.String()); levelStr != "" {
+		cfg.Log.Level = zlog.Level(levelStr)
+	}
+	cfg.Log.Output = getEnv("LOG_OUTPUT", cfg.Log.Output)
+	cfg.Log.Format = getEnv("LOG_FORMAT", cfg.Log.Format)
+	cfg.Log.FilePath = getEnv("LOG_FILE_PATH", cfg.Log.FilePath)
+	cfg.Log.MaxSize = getEnvInt("LOG_MAX_SIZE", cfg.Log.MaxSize)
+	cfg.Log.MaxBackups = getEnvInt("LOG_MAX_BACKUPS", cfg.Log.MaxBackups)
+	cfg.Log.MaxAge = getEnvInt("LOG_MAX_AGE", cfg.Log.MaxAge)
+	cfg.Log.Compress = getEnvBool("LOG_COMPRESS", cfg.Log.Compress)
+	cfg.Log.Sampling = getEnvBool("LOG_SAMPLING", cfg.Log.Sampling)
+}
+
+func SyncConfigToEnv(config Config) {
 	// config, err := LoadConfig()
 	// if err != nil {
 	// 	log.Fatalf("加载配置失败：%v", err.Error())

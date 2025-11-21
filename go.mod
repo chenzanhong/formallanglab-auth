@@ -4,8 +4,7 @@ go 1.23.0
 
 require (
 	github.com/chenzanhong/goutil v1.0.0
-	github.com/chenzanhong/zlog v0.4.1
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/chenzanhong/zlog v0.5.0
 	github.com/gin-contrib/cors v1.7.6
 	github.com/gin-gonic/gin v1.11.0
 	github.com/google/uuid v1.6.0

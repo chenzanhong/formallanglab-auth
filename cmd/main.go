@@ -35,13 +35,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("加载配置失败：%v", err.Error())
 	}
-	cf.SetEnvVariables(*config) // 环境变量设置，环境变量优先级高于配置文件
+	cf.ApplyEnvToConfig(config)
+	cf.SyncConfigToEnv(*config) // 环境变量设置，环境变量优先级高于配置文件
 	jwtx.InitWithHS256(
 		os.Getenv("JWT_KEY"),
 		&middleware.AccessTokenClaims{},
 		jwtx.WithAutoInject(true),
 	)
-	
+
 	// 日志
 	zlog.InitLogger(config.Log)
 
@@ -67,7 +68,7 @@ func main() {
 
 	// 5. 创建 HTTP 服务实例
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    fmt.Sprintf(":%s", os.Getenv("SERVER_PORT")),
 		Handler: r,
 	}
 

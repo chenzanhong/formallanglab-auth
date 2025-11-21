@@ -91,7 +91,6 @@ func (h *UserHandler) Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, dto.LoginResponse{
 			Result: false,
 			Msg:    "登录数据解析失败",
-			Error:  err.Error(),
 		})
 		return
 	}
@@ -122,14 +121,13 @@ func (h *UserHandler) Login(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, dto.LoginResponse{
 				Result: false,
 				Msg:    "登录失败",
-				Error:  err.Error(),
 			})
 			return
 		}
 	}
 
 	// 设置刷新令牌到HttpOnly Cookie中
-	c.SetCookie("refreshToken", resp.RefreshToken, 30*24*60*60, "/", "", true, true) // 30天过期
+	c.SetCookie("refreshToken", resp.RefreshToken, 7*24*60*60, "/", "", true, true) // 7天过期
 
 	metrics.IncOperation("user", "login", "success")
 	zlog.Infow("登录成功", "user_id", resp.ID, "username", resp.Name)
@@ -193,16 +191,15 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, dto.LoginResponse{
 				Result: false,
 				Msg:    "刷新令牌失败",
-				Error:  err.Error(),
 			})
 			return
 		}
 	}
 
 	// 设置新的刷新令牌到HttpOnly Cookie中
-	c.SetCookie("refreshToken", resp.RefreshToken, 30*24*60*60, "/", "", true, true) // 30天过期
+	c.SetCookie("refreshToken", resp.RefreshToken, 7*24*60*60, "/", "", true, true) // 7天过期
 
-	c.JSON(http.StatusOK, dto.LoginResponse{
+	c.JSON(http.StatusOK, dto.RefreshResponse{
 		Result:      true,
 		Msg:         "令牌刷新成功",
 		AccessToken: resp.AccessToken,

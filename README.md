@@ -10,3 +10,11 @@ FormalLangLab 是一个基于 Web 的交互式形式语言与自动机学习系�
 - 用户账户的创建与凭证管理（注册、登录、登出）
 - 安全令牌的签发与刷新（Access Token + Refresh Token）
 - 敏感操作的二次验证协调（通过异步事件触发验证码发送）
+
+2. 流程
+用户登录 → 后端返回 Access Token + Refresh Token（Cookie）。
+前端携带 Access Token 调用业务接口 → 成功。
+Access Token 过期 → 业务接口返回 401。
+前端静默调用 /gdesign/auth/refresh → 后端验证 Refresh Token，返回新的 Access Token 与新的 Refresh Token（更新 Cookie）。
+前端用新 Access Token 重试失败请求 → 成功。
+用户主动登出 → 调用 /gdesign/auth/logout，后端清除refresh token记录，前端清空本地状态。
