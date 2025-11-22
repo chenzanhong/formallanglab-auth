@@ -35,7 +35,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("加载配置失败：%v", err.Error())
 	}
-	cf.ApplyEnvToConfig(config)
 	cf.SyncConfigToEnv(*config) // 环境变量设置，环境变量优先级高于配置文件
 	jwtx.InitWithHS256(
 		os.Getenv("JWT_KEY"),

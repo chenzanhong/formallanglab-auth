@@ -4,6 +4,7 @@ import (
 	"auth/internal/domain/dto"
 	myErrors "auth/internal/errors"
 	"auth/internal/metrics"
+	"auth/internal/middleware"
 	userSvc "auth/internal/service/user_s"
 	"net/http"
 	"time"
@@ -167,6 +168,34 @@ func (h *UserHandler) Logout(c *gin.Context) {
 
 // Refresh 处理刷新令牌请求
 func (h *UserHandler) Refresh(c *gin.Context) {
+	if c.Request.TLS == nil { // http
+		// 🚨 开发模式：跳过 refresh token 验证，直接生成新 token
+		// 注意：仅用于本地开发！生产环境必须禁用！
+
+		// 可选：从 cookie 或 header 中尝试获取用户信息（如 mock 用户）
+		// 这里假设你知道当前用户是谁（例如从 access token 解析，或固定测试用户）
+		// 为了演示，我们使用一个固定的测试用户 ID 和 name
+		testUserID := int64(1)
+		testUserName := "dev_user"
+
+		// 调用服务层生成新的 access token（不依赖 refresh token）
+		accessToken, _ := middleware.GenerateAccessToken("chenzh", 5)
+
+		// 注意：本地开发可不更新 refreshToken cookie，或也 mock 一个
+		// 如果需要保持登录状态更久，可以设置一个 dummy refreshToken
+		c.SetCookie("refreshToken", "dev_refresh_token", 7*24*60*60, "/", "", false, true)
+
+		c.JSON(http.StatusOK, dto.RefreshResponse{
+			Result:      true,
+			Msg:         "开发模式：令牌已模拟刷新",
+			AccessToken: accessToken,
+			Name:        testUserName,
+			ID:          testUserID,
+		})
+		return
+	}
+	// https
+
 	// 从Cookie中获取刷新令牌
 	refreshToken, err := c.Cookie("refreshToken")
 	if err != nil || refreshToken == "" {
@@ -206,6 +235,8 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 		Name:        resp.Name,
 		ID:          resp.ID,
 	})
+	return
+
 }
 
 // 重置密码

@@ -5,3 +5,5 @@ backend\configs\config.yaml
 logs/*.log
 /test/ai
 qa/
+.env
+.env.*
