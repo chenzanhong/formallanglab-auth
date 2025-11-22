@@ -1,5 +1,5 @@
 # 第一阶段：构建阶段
-FROM golang:1.24-alpine AS builder
+FROM crpi-tcnuencv1iecgx03.cn-hangzhou.personal.cr.aliyuncs.com/chenzh2004/golang:1.24-alpine AS builder
 
 # 设置工作目录
 WORKDIR /app
@@ -21,7 +21,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o auth-server cmd/main.go
 
 # 第二阶段：运行阶段
-FROM alpine:3.20
+FROM crpi-tcnuencv1iecgx03.cn-hangzhou.personal.cr.aliyuncs.com/chenzh2004/alpine:3.20
 
 # 添加安全标签
 LABEL maintainer="GDesign Team"
