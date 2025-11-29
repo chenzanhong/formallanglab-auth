@@ -9,3 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE INDEX IF NOT EXISTS idx_users_name on users(name);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+
+INSERT INTO users(name, password, email)
+VALUES ('chenzh', '$2a$10$7FoIbNXphn3rT.xwULi3jOlPHzbJ3REtJKspW7nIWYcO382RPLBDq', '2680728792@qq.com') -- 123456
+ON CONFLICT (name) DO NOTHING;

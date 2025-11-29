@@ -208,19 +208,28 @@ func ApplyEnvToConfig(cfg *Config) {
 	cfg.Log.MaxAge = getEnvInt("LOG_MAX_AGE", cfg.Log.MaxAge)
 	cfg.Log.Compress = getEnvBool("LOG_COMPRESS", cfg.Log.Compress)
 	cfg.Log.Sampling = getEnvBool("LOG_SAMPLING", cfg.Log.Sampling)
-	// d单独处理 Fields
-	cfg.Log.Fields = parseLogFields()
+	// 单独处理 Fields
+	override := parseLogFieldsFromEnv()
+	if override != nil {
+		// 合并：保留 cfg.Log.Fields 已有字段，用 override 覆盖/新增
+		if cfg.Log.Fields == nil {
+			cfg.Log.Fields = make(map[string]string)
+		}
+		for k, v := range override {
+			cfg.Log.Fields[k] = v
+		}
+	}
 }
 
-func parseLogFields() map[string]string {
+func parseLogFieldsFromEnv() map[string]string {
 	raw := os.Getenv("LOG_FIELDS")
 	if raw == "" {
-		return map[string]string{"server": "email"} // 默认值
+		return nil // 或空 map
 	}
 	var fields map[string]string
 	if err := json.Unmarshal([]byte(raw), &fields); err != nil {
-		log.Printf("Invalid LOG_FIELDS, using default: %v", err)
-		return map[string]string{"server": "email"}
+		log.Printf("Invalid LOG_FIELDS, ignoring: %v", err)
+		return nil
 	}
 	return fields
 }

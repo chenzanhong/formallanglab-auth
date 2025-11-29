@@ -52,9 +52,6 @@ COPY configs/config.yaml /app/configs/
 # 复制迁移文件
 COPY migrations/ /app/migrations/
 
-# 创建环境变量示例文件
-COPY --chown=authuser:authuser .env.example /app/
-
 # 依赖 docker-compose 的 volume 挂载或环境变量传入真实配置。
 # COPY --chown=authuser:authuser .env /app/
 
@@ -91,3 +88,6 @@ CMD ["/app/auth-server"]
 #      -v $(pwd)/logs:/app/logs \
 #      -v $(pwd)/migrations:/app/migrations \
 #      gdesign-auth
+
+# docker build -t crpi-tcnuencv1iecgx03.cn-hangzhou.personal.cr.aliyuncs.com/chenzh2004/formallanglab-auth .
+# docker push crpi-tcnuencv1iecgx03.cn-hangzhou.personal.cr.aliyuncs.com/chenzh2004/formallanglab-auth

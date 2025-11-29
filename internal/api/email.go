@@ -26,13 +26,12 @@ func (h *EmailHandler) SendRegisterVerificationCode(c *gin.Context) {
 	defer func() {
 		metrics.ObserveOperationDuration("email", "send_register_code", time.Since(start).Seconds())
 	}()
-	usernameStr, _ := c.Get("username")
 
 	var request dto.SendRegisterVerificationCodeRequest
 
 	if err := c.BindJSON(&request); err != nil {
 		metrics.IncOperation("email", "send_register_code", "failure: parameter parsing error")
-		zlog.Warnw("发送注册验证码失败", "detail", "解析请求失败，请检查请求格式是否正确", "username", usernameStr.(string))
+		zlog.Warnw("发送注册验证码失败", "detail", "解析请求失败，请检查请求格式是否正确")
 		c.JSON(http.StatusBadRequest, dto.VerificationCodeResponse{Msg: "请求数据格式错误", Result: false})
 		return
 	}
@@ -40,7 +39,7 @@ func (h *EmailHandler) SendRegisterVerificationCode(c *gin.Context) {
 	// 检查邮箱格式
 	if request.Email == "" {
 		metrics.IncOperation("email", "send_register_code", "failure: empty email")
-		zlog.Warnw("发送注册验证码失败", "detail", "邮箱为空", "username", usernameStr.(string))
+		zlog.Warnw("发送注册验证码失败", "detail", "邮箱为空")
 		c.JSON(http.StatusBadRequest, dto.VerificationCodeResponse{Msg: "请输入邮箱地址", Result: false})
 		return
 	}
@@ -48,14 +47,14 @@ func (h *EmailHandler) SendRegisterVerificationCode(c *gin.Context) {
 	err := h.emailService.SendRegisterVerificationCode(c.Request.Context(), request.Email)
 	if err != nil {
 		metrics.IncOperation("email", "send_register_code", "failure: send code error")
-		zlog.Errorw("发送注册验证码失败", "detail", err.Error(), "username", usernameStr.(string), "email", request.Email)
+		zlog.Errorw("发送注册验证码失败", "detail", err.Error(), "email", request.Email)
 		c.JSON(http.StatusInternalServerError, dto.VerificationCodeResponse{Msg: "验证码发送失败", Result: false})
 		return
 	}
 
 	// 这里暂时返回成功消息
 	metrics.IncOperation("email", "send_register_code", "success")
-	zlog.Infow("发送注册验证码成功", "username", usernameStr.(string), "email", request.Email)
+	zlog.Infow("发送注册验证码成功", "email", request.Email)
 	c.JSON(http.StatusOK, dto.VerificationCodeResponse{
 		Msg:    "验证码已发送，请检查邮箱",
 		Result: true,
