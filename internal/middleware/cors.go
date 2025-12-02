@@ -11,6 +11,8 @@ func CORSMiddleware() gin.HandlerFunc {
 	config.AllowOrigins = []string{
 		"https://caohaitong.xyz",
 		"http://caohaitong.xyz",
+		"http://113.44.170.52",  
+		"https://113.44.170.52",
 		"http://localhost:5173",
 		"http://localhost:3000",
 	}
