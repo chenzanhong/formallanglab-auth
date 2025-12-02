@@ -155,7 +155,8 @@ func (h *UserHandler) Logout(c *gin.Context) {
 	}
 
 	if err = h.userService.RevokeRefreshToken(c.Request.Context(), refreshToken); err != nil {
-
+		// 即使撤销失败也继续清除 Cookie，避免用户侧残留令牌
+		zlog.Warnw("撤销刷新令牌失败", "detail", err.Error())
 	}
 
 	// 清除Cookie中的刷新令牌
@@ -235,8 +236,6 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 		Name:        resp.Name,
 		ID:          resp.ID,
 	})
-	return
-
 }
 
 // 重置密码
@@ -298,5 +297,5 @@ func (h *UserHandler) ResetPassword(c *gin.Context) {
 
 func (h *UserHandler) CheckMe(c *gin.Context) {
 	// 不做任何处理，只是借助JWT判断token是否还有效
-	c.JSON(http.StatusOK, gin.H{})
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }

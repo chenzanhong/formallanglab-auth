@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strconv"
 	"time"
 
@@ -44,14 +43,7 @@ func InitPGData(db *gorm.DB, ctx context.Context) error {
 		return fmt.Errorf("database connection not initialized")
 	}
 
-	_, filename, _, ok := runtime.Caller(0) // 获取当前的文件名
-	if !ok {
-		zlog.Fatal("无法获取运行时调用者信息")
-	}
-
-	// 获取当前文件所在的目录
-	currentDir := filepath.Dir(filename)
-	migrationsDir := filepath.Join(currentDir, "../../migrations")
+	migrationsDir := "./migrations" // 相对于 WORKDIR=/app
 	var err error
 	files, err := os.ReadDir(migrationsDir)
 	if err != nil {

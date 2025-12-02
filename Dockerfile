@@ -24,9 +24,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o auth-server cmd/main.g
 FROM crpi-tcnuencv1iecgx03.cn-hangzhou.personal.cr.aliyuncs.com/chenzh2004/alpine:3.20
 
 # 添加安全标签
-LABEL maintainer="GDesign Team"
+LABEL maintainer="FormalLangLab Team"
 LABEL version="1.0"
-LABEL description="Auth Service for GDesign Project"
+LABEL description="Auth Service for FormalLangLab Project"
 
 # 设置工作目录
 WORKDIR /app
