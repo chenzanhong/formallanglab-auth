@@ -30,6 +30,7 @@ func SetupRouter(userHandler *UserHandler, emailHandler *EmailHandler) *gin.Engi
 	setupPublicRoutes(auth, userHandler, emailHandler) // 注册公开路由
 	// setupAuthRoutes(router, userHandler, aiHandler, learnHandler) // 注册需要认证的路由
 	auth.GET("/me", jwtx.GinJWTAuthMiddleware(), userHandler.CheckMe)
+
 	return router
 }
 

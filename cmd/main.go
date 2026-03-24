@@ -88,7 +88,7 @@ func main() {
 
 	// 启动pprof http服务
 	go func() {
-		if v, ok := os.LookupEnv("PPROF_PORT"); ok && v != "" && v != "0" && v != "0" {
+		if v, ok := os.LookupEnv("PPROF_PORT"); ok && v != "" && v != "0" {
 			zlog.Infof("Starting pprof on localhost:%d", config.Server.PprofPort)
 			http.ListenAndServe(fmt.Sprintf("localhost:%d", config.Server.PprofPort), nil)
 		}
