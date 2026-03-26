@@ -85,6 +85,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 	defer func() {
 		metrics.ObserveOperationDuration("user", "login", time.Since(start).Seconds())
 	}()
+
 	var req dto.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		metrics.IncOperation("user", "login", "failure: parameter parsing error")

@@ -3,13 +3,13 @@ CREATE TABLE IF NOT EXISTS users (
 	name VARCHAR UNIQUE NOT NULL,
 	password VARCHAR NOT NULL,
 	email VARCHAR NOT NULL,
-	token VARCHAR,
+	role VARCHAR NOT NULL DEFAULT 'USER', -- 保留字段，为后续（如果要）支持分角色权限使用
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_name on users(name);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
-INSERT INTO users(name, password, email)
-VALUES ('chenzh', '$2a$10$7FoIbNXphn3rT.xwULi3jOlPHzbJ3REtJKspW7nIWYcO382RPLBDq', '2680728792@qq.com') -- 123456
+INSERT INTO users(name, password, email, role)
+VALUES ('chenzh', '$2a$10$7FoIbNXphn3rT.xwULi3jOlPHzbJ3REtJKspW7nIWYcO382RPLBDq', '2680728792@qq.com', 'ADMIN') -- 123456
 ON CONFLICT (name) DO NOTHING;
