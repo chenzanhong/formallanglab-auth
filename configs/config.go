@@ -23,7 +23,9 @@ type ServerConfig struct {
 }
 
 type JWTConfig struct {
-	Key string `yaml:"key"`
+	Key                    string `yaml:"key"`
+	AccessTokenExpireTime  int    `yaml:"access_token_expire_time"`  // 单位秒
+	RefreshTokenExpireTime int    `yaml:"refresh_token_expire_time"` // 单位秒
 }
 
 type PGConfig struct {
@@ -173,6 +175,8 @@ func ApplyEnvToConfig(cfg *Config) {
 
 	// JWT
 	cfg.JWT.Key = getEnv("JWT_KEY", cfg.JWT.Key)
+	cfg.JWT.AccessTokenExpireTime = getEnvInt("JWT_ACCESS_TOKEN_EXPIRE_TIME", cfg.JWT.AccessTokenExpireTime)
+	cfg.JWT.RefreshTokenExpireTime = getEnvInt("JWT_REFRESH_TOKEN_EXPIRE_TIME", cfg.JWT.RefreshTokenExpireTime)
 
 	// PostgreSQL
 	cfg.PG.Host = getEnv("DB_HOST", cfg.PG.Host)
@@ -257,6 +261,8 @@ func SyncConfigToEnv(config Config) {
 
 	// jwt
 	setEnvIfNotSet("JWT_KEY", config.JWT.Key)
+	setEnvIfNotSet("JWT_ACCESS_TOKEN_EXPIRE_TIME", strconv.Itoa(config.JWT.AccessTokenExpireTime))
+	setEnvIfNotSet("JWT_REFRESH_TOKEN_EXPIRE_TIME", strconv.Itoa(config.JWT.RefreshTokenExpireTime))
 
 	// PostgreSQL
 	setEnvIfNotSet("DB_USER", config.PG.User)

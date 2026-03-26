@@ -31,7 +31,7 @@ func (s *UserServiceImpl) Login(ctx context.Context, req *dto.LoginRequest) (res
 	}
 
 	// 生成访问令牌 (JWT)
-	accessToken, err := middleware.GenerateAccessToken(user.Name, user.ID)
+	accessToken, err := middleware.GenerateAccessToken(user.Name, user.ID, s.JwtCfg.AccessTokenExpireTime)
 	if err != nil {
 		return nil, errors.ErrTokenGenerationFailed
 	}

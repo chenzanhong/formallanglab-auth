@@ -2,6 +2,7 @@
 package user_s
 
 import (
+	"auth/configs"
 	"auth/internal/domain/dto"
 	"auth/internal/domain/model"
 	"auth/internal/repository"
@@ -19,13 +20,15 @@ type UserService interface {
 	// GetUserIDByRefreshToken 根据刷新令牌获取用户ID
 	GetUserNameAndIDByRefreshToken(ctx context.Context, refreshToken string) (string, int64, error)
 	ResetPassword(ctx context.Context, token, newPassword string) error
+	GetUser(ctx context.Context, userID int64) (*model.User, error)
 }
 
 type UserServiceImpl struct {
 	userRepo  repository.UserRepository
 	emailRepo repository.EmailRepository
+	JwtCfg    configs.JWTConfig
 }
 
-func NewUserService(userRepo repository.UserRepository, emailRepo repository.EmailRepository) UserService {
-	return &UserServiceImpl{userRepo: userRepo, emailRepo: emailRepo}
+func NewUserService(userRepo repository.UserRepository, emailRepo repository.EmailRepository, jwtCfg configs.JWTConfig) UserService {
+	return &UserServiceImpl{userRepo: userRepo, emailRepo: emailRepo, JwtCfg: jwtCfg}
 }

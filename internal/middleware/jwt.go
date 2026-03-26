@@ -15,12 +15,12 @@ type AccessTokenClaims struct {
 	jwtx.RegisteredClaims
 }
 
-func GenerateAccessToken(username string, userID int64) (string, error) {
+func GenerateAccessToken(username string, userID int64, expireTimeSeconds int) (string, error) {
 	claims := &AccessTokenClaims{
 		Username: username,
 		UserID:   userID,
 		RegisteredClaims: jwtx.RegisteredClaims{
-			ExpiresAt: jwtx.NewNumericDate(time.Now().Add(15 * time.Minute)),
+			ExpiresAt: jwtx.NewNumericDate(time.Now().Add(time.Duration(expireTimeSeconds) * time.Second)),
 			IssuedAt:  jwtx.NewNumericDate(time.Now()),
 		},
 	}

@@ -55,7 +55,7 @@ func main() {
 	userRepo := rep.NewUserRepository(repo.DB, repo.Redis)
 	emailRepo := rep.NewEmailRepository(repo.DB, repo.Redis)
 	kafkaProducer := kafka_s.NewDefaultKafkaProducerService()
-	userService := userSvc.NewUserService(userRepo, emailRepo)
+	userService := userSvc.NewUserService(userRepo, emailRepo, config.JWT)
 	emailService := emailSvc.NewEmailService(emailRepo, userRepo, kafkaProducer)
 
 	// 4. 初始化处理器

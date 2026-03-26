@@ -31,7 +31,7 @@ func (s *UserServiceImpl) Refresh(ctx context.Context, refreshToken string) (res
 	}
 
 	// 生成新的访问令牌
-	accessToken, err := middleware.GenerateAccessToken(user.Name, user.ID)
+	accessToken, err := middleware.GenerateAccessToken(user.Name, user.ID, s.JwtCfg.AccessTokenExpireTime)
 	if err != nil {
 		return nil, errors.ErrTokenGenerationFailed
 	}
