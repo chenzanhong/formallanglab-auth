@@ -2,16 +2,16 @@
 package email
 
 import (
-	"auth/internal/domain/model"
-	myErrors "auth/internal/errors"
-	"auth/internal/repository"
-	kafka_s "auth/internal/service/kafka_s"
-	"auth/pkg/token"
 	"context"
 	"errors"
 	"fmt"
 	"time"
 
+	"github.com/chenzanhong/formallanglab-auth/internal/domain/model"
+	myErrors "github.com/chenzanhong/formallanglab-auth/internal/errors"
+	"github.com/chenzanhong/formallanglab-auth/internal/repository"
+	kafka_s "github.com/chenzanhong/formallanglab-auth/internal/service/kafka_s"
+	"github.com/chenzanhong/formallanglab-auth/pkg/token"
 	"github.com/chenzanhong/zlog"
 	"gorm.io/gorm"
 )
@@ -119,6 +119,7 @@ func (s *EmailServiceImpl) SendResetPwdVerificationCode(ctx context.Context, ema
 	s.sendResetPwdEmail(email, token)
 
 	zlog.Infow("重置密码请求", "detail", "重置密码请求成功。")
+
 	return nil
 }
 

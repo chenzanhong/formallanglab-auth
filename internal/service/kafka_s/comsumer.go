@@ -1,8 +1,9 @@
 package kafka
 
 import (
-	"auth/internal/domain/model"
 	"context"
+
+	"github.com/chenzanhong/formallanglab-auth/internal/domain/model"
 )
 
 type KafkaEmailConsumerService interface {

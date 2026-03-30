@@ -1,14 +1,6 @@
 package main
 
 import (
-	"auth/configs"
-	cf "auth/configs"
-	"auth/internal/api"
-	"auth/internal/middleware"
-	rep "auth/internal/repository"
-	emailSvc "auth/internal/service/email_s"
-	kafka_s "auth/internal/service/kafka_s"
-	userSvc "auth/internal/service/user_s"
 	"context"
 	"fmt"
 	"log"
@@ -20,8 +12,15 @@ import (
 	"syscall"
 	"time"
 
-	mtr "auth/internal/metrics"
-
+	"github.com/chenzanhong/formallanglab-auth/configs"
+	cf "github.com/chenzanhong/formallanglab-auth/configs"
+	"github.com/chenzanhong/formallanglab-auth/internal/api"
+	mtr "github.com/chenzanhong/formallanglab-auth/internal/metrics"
+	"github.com/chenzanhong/formallanglab-auth/internal/middleware"
+	rep "github.com/chenzanhong/formallanglab-auth/internal/repository"
+	emailSvc "github.com/chenzanhong/formallanglab-auth/internal/service/email_s"
+	kafka_s "github.com/chenzanhong/formallanglab-auth/internal/service/kafka_s"
+	userSvc "github.com/chenzanhong/formallanglab-auth/internal/service/user_s"
 	"github.com/chenzanhong/goutil/jwtx"
 	"github.com/chenzanhong/zlog"
 )

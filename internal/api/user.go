@@ -1,14 +1,14 @@
 package api
 
 import (
-	"auth/internal/domain/dto"
-	myErrors "auth/internal/errors"
-	"auth/internal/metrics"
-	"auth/internal/middleware"
-	userSvc "auth/internal/service/user_s"
 	"net/http"
 	"time"
 
+	"github.com/chenzanhong/formallanglab-auth/internal/domain/dto"
+	myErrors "github.com/chenzanhong/formallanglab-auth/internal/errors"
+	"github.com/chenzanhong/formallanglab-auth/internal/metrics"
+	"github.com/chenzanhong/formallanglab-auth/internal/middleware"
+	userSvc "github.com/chenzanhong/formallanglab-auth/internal/service/user_s"
 	"github.com/chenzanhong/zlog"
 	"github.com/gin-gonic/gin"
 )
@@ -35,6 +35,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 			Result: false,
 			Msg:    "请求数据格式错误",
 		})
+
 		return
 	}
 
@@ -48,6 +49,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 				Result: false,
 				Msg:    "密码加密失败",
 			})
+
 			return
 		case myErrors.ErrUserCreationFailed:
 			metrics.IncOperation("user", "register", "failure: user creation error")
@@ -56,6 +58,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 				Result: false,
 				Msg:    "用户创建失败",
 			})
+
 			return
 		default:
 			metrics.IncOperation("user", "register", "failure: unknown error")
@@ -65,6 +68,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 				Msg:    "注册失败",
 				Error:  err.Error(),
 			})
+
 			return
 		}
 	}
@@ -94,6 +98,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 			Result: false,
 			Msg:    "登录数据解析失败",
 		})
+
 		return
 	}
 
@@ -108,6 +113,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 				Result: false,
 				Msg:    "用户名或密码错误",
 			})
+
 			return
 		case myErrors.ErrInvalidCredentials:
 			metrics.IncOperation("user", "login", "failure: invalid password")
@@ -116,6 +122,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 				Result: false,
 				Msg:    "用户名或密码错误",
 			})
+
 			return
 		default:
 			metrics.IncOperation("user", "login", "failure: unknown error")
@@ -124,6 +131,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 				Result: false,
 				Msg:    "登录失败",
 			})
+
 			return
 		}
 	}
@@ -152,6 +160,7 @@ func (h *UserHandler) Logout(c *gin.Context) {
 			Result: true,
 			Msg:    "登出成功",
 		})
+
 		return
 	}
 
@@ -180,6 +189,7 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 				Result: false,
 				Msg:    "获取用户信息失败",
 			})
+
 			return
 		}
 
@@ -197,6 +207,7 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 			Name:        user.Name,
 			ID:          user.ID,
 		})
+
 		return
 	}
 	// https
@@ -208,6 +219,7 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 			Result: false,
 			Msg:    "缺少刷新令牌",
 		})
+
 		return
 	}
 
@@ -220,12 +232,14 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 				Result: false,
 				Msg:    "无效的刷新令牌",
 			})
+
 			return
 		default:
 			c.JSON(http.StatusInternalServerError, dto.LoginResponse{
 				Result: false,
 				Msg:    "刷新令牌失败",
 			})
+
 			return
 		}
 	}
@@ -255,6 +269,7 @@ func (h *UserHandler) ResetPassword(c *gin.Context) {
 		metrics.IncOperation("email", "reset_password", "failure: parameter parsing error")
 		zlog.Warnw("重置密码失败", "detail", "解析请求数据失败")
 		c.JSON(http.StatusBadRequest, dto.ResetPasswordResponse{Msg: "请求数据格式错误", Result: false})
+
 		return
 	}
 
@@ -262,6 +277,7 @@ func (h *UserHandler) ResetPassword(c *gin.Context) {
 		metrics.IncOperation("email", "reset_password", "failure: empty password")
 		zlog.Warnw("重置密码失败", "detail", "新密码为空")
 		c.JSON(http.StatusBadRequest, dto.ResetPasswordResponse{Msg: "新密码不能为空", Result: false})
+
 		return
 	}
 
@@ -272,21 +288,25 @@ func (h *UserHandler) ResetPassword(c *gin.Context) {
 			metrics.IncOperation("email", "reset_password", "failure: invalid token")
 			zlog.Warnw("重置密码失败", "detail", "验证码错误或已过期")
 			c.JSON(http.StatusUnauthorized, dto.ResetPasswordResponse{Msg: "验证码错误或已过期", Result: false})
+
 			return
 		case myErrors.ErrPasswordHashFailed:
 			metrics.IncOperation("email", "reset_password", "failure: password encryption error")
 			zlog.Errorw("重置密码失败", "detail", "密码加密失败")
 			c.JSON(http.StatusInternalServerError, dto.ResetPasswordResponse{Msg: "密码加密失败", Result: false})
+
 			return
 		case myErrors.ErrUserNotFound:
 			metrics.IncOperation("email", "reset_password", "failure: user not found")
 			zlog.Warnw("重置密码失败", "detail", "用户不存在")
 			c.JSON(http.StatusUnauthorized, dto.ResetPasswordResponse{Msg: "用户不存在", Result: false})
+
 			return
 		default:
 			metrics.IncOperation("email", "reset_password", "failure: reset password error")
 			zlog.Warnw("重置密码失败", "detail", err.Error())
 			c.JSON(http.StatusInternalServerError, dto.ResetPasswordResponse{Msg: "重置密码失败", Result: false})
+
 			return
 		}
 	}

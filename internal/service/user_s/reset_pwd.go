@@ -1,10 +1,10 @@
 package user_s
 
 import (
-	"auth/pkg/cryptoutil"
 	"context"
 	"errors"
 
+	"github.com/chenzanhong/formallanglab-auth/pkg/cryptoutil"
 	"github.com/chenzanhong/zlog"
 )
 
@@ -33,5 +33,6 @@ func (s *UserServiceImpl) ResetPassword(ctx context.Context, token, newPassword 
 	}
 
 	zlog.Infow("重置密码", "detail", "重置密码成功。")
+
 	return nil
 }

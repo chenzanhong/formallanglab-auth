@@ -2,12 +2,12 @@
 package kafka
 
 import (
-	"auth/internal/domain/model"
 	"context"
 	"encoding/json"
 	"os"
 	"strings"
 
+	"github.com/chenzanhong/formallanglab-auth/internal/domain/model"
 	"github.com/segmentio/kafka-go"
 )
 
@@ -28,6 +28,7 @@ func NewKafkaProducerService(producer *kafka.Writer) *KafkaServiceImpl {
 func NewDefaultKafkaProducerService() *KafkaServiceImpl {
 	topic := os.Getenv("KAFKA_TOPIC")
 	brokers := strings.Split(strings.TrimSpace(os.Getenv("KAFKA_BROKERS")), ",")
+
 	return &KafkaServiceImpl{
 		producer: &kafka.Writer{
 			Addr:         kafka.TCP(brokers...),

@@ -1,10 +1,11 @@
 package user_s
 
 import (
-	"auth/internal/domain/model"
-	"auth/internal/errors"
-	"auth/pkg/cryptoutil"
 	"context"
+
+	"github.com/chenzanhong/formallanglab-auth/internal/domain/model"
+	"github.com/chenzanhong/formallanglab-auth/internal/errors"
+	"github.com/chenzanhong/formallanglab-auth/pkg/cryptoutil"
 )
 
 // internal/service/user_s/register.go
@@ -37,5 +38,6 @@ func (s *UserServiceImpl) Register(ctx context.Context, name, email, password, t
 	}
 
 	s.emailRepo.DeleteRegisterVerificationToken(ctx, email)
+
 	return user, nil
 }

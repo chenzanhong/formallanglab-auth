@@ -1,10 +1,11 @@
 package user_s
 
 import (
-	"auth/internal/domain/dto"
-	"auth/internal/errors"
-	"auth/internal/middleware"
 	"context"
+
+	"github.com/chenzanhong/formallanglab-auth/internal/domain/dto"
+	"github.com/chenzanhong/formallanglab-auth/internal/errors"
+	"github.com/chenzanhong/formallanglab-auth/internal/middleware"
 )
 
 // Refresh 使用刷新令牌获取新的访问令牌
@@ -16,7 +17,7 @@ func (s *UserServiceImpl) Refresh(ctx context.Context, refreshToken string) (res
 	}
 
 	// 验证刷新令牌是否有效
-	valid, err := s.userRepo.ValidateRefreshToken(ctx,  refreshToken)
+	valid, err := s.userRepo.ValidateRefreshToken(ctx, refreshToken)
 	if err != nil {
 		return nil, errors.ErrInternal
 	}

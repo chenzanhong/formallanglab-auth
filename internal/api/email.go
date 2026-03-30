@@ -2,12 +2,12 @@
 package api
 
 import (
-	"auth/internal/domain/dto"
-	"auth/internal/metrics"
-	email "auth/internal/service/email_s"
 	"net/http"
 	"time"
 
+	"github.com/chenzanhong/formallanglab-auth/internal/domain/dto"
+	"github.com/chenzanhong/formallanglab-auth/internal/metrics"
+	email "github.com/chenzanhong/formallanglab-auth/internal/service/email_s"
 	"github.com/chenzanhong/zlog"
 	"github.com/gin-gonic/gin"
 )
@@ -33,6 +33,7 @@ func (h *EmailHandler) SendRegisterVerificationCode(c *gin.Context) {
 		metrics.IncOperation("email", "send_register_code", "failure: parameter parsing error")
 		zlog.Warnw("发送注册验证码失败", "detail", "解析请求失败，请检查请求格式是否正确")
 		c.JSON(http.StatusBadRequest, dto.VerificationCodeResponse{Msg: "请求数据格式错误", Result: false})
+
 		return
 	}
 
@@ -41,6 +42,7 @@ func (h *EmailHandler) SendRegisterVerificationCode(c *gin.Context) {
 		metrics.IncOperation("email", "send_register_code", "failure: empty email")
 		zlog.Warnw("发送注册验证码失败", "detail", "邮箱为空")
 		c.JSON(http.StatusBadRequest, dto.VerificationCodeResponse{Msg: "请输入邮箱地址", Result: false})
+
 		return
 	}
 
@@ -49,6 +51,7 @@ func (h *EmailHandler) SendRegisterVerificationCode(c *gin.Context) {
 		metrics.IncOperation("email", "send_register_code", "failure: send code error")
 		zlog.Errorw("发送注册验证码失败", "detail", err.Error(), "email", request.Email)
 		c.JSON(http.StatusInternalServerError, dto.VerificationCodeResponse{Msg: "验证码发送失败", Result: false})
+
 		return
 	}
 
@@ -75,6 +78,7 @@ func (h *EmailHandler) SendResetPwdVerificationCode(c *gin.Context) {
 		metrics.IncOperation("email", "send_reset_password_code", "failure: parameter parsing error")
 		zlog.Warnw("发送重置密码的验证码失败", "detail", "解析请求失败，请检查请求格式是否正确", "username")
 		c.JSON(http.StatusBadRequest, dto.VerificationCodeResponse{Msg: "解析请求失败，请检查请求格式是否正确", Result: false})
+
 		return
 	}
 
@@ -83,6 +87,7 @@ func (h *EmailHandler) SendResetPwdVerificationCode(c *gin.Context) {
 		metrics.IncOperation("email", "send_reset_password_code", "failure: send code error")
 		zlog.Errorw("发送重置密码的验证码失败", "detail", err.Error(), "email", request.Email)
 		c.JSON(http.StatusInternalServerError, dto.VerificationCodeResponse{Msg: "发送重置密码的验证码失败", Result: false})
+
 		return
 	}
 

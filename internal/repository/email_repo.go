@@ -50,6 +50,7 @@ func (r *EmailRepositoryImpl) HasRegisterVerificationToken(ctx context.Context, 
 	if errors.Is(err, redis.Nil) {
 		return false, nil
 	}
+
 	return err == nil, err
 }
 
@@ -62,6 +63,7 @@ func (r *EmailRepositoryImpl) ValidateRegisterVerificationToken(ctx context.Cont
 	if err != nil {
 		return false, err
 	}
+
 	return stored == token, nil
 }
 
@@ -83,6 +85,7 @@ func (r *EmailRepositoryImpl) HasResetPwdToken(ctx context.Context, token string
 	if errors.Is(err, redis.Nil) {
 		return false, nil
 	}
+
 	return err == nil, err
 }
 
@@ -92,6 +95,7 @@ func (r *EmailRepositoryImpl) GetEmailByResetPwdToken(ctx context.Context, token
 	if errors.Is(err, redis.Nil) {
 		return "", errors.New("token 不存在或已过期")
 	}
+
 	return email, err
 }
 

@@ -1,11 +1,12 @@
 package user_s
 
 import (
-	"auth/internal/domain/dto"
-	"auth/internal/errors"
-	"auth/internal/middleware"
-	"auth/pkg/cryptoutil"
 	"context"
+
+	"github.com/chenzanhong/formallanglab-auth/internal/domain/dto"
+	"github.com/chenzanhong/formallanglab-auth/internal/errors"
+	"github.com/chenzanhong/formallanglab-auth/internal/middleware"
+	"github.com/chenzanhong/formallanglab-auth/pkg/cryptoutil"
 )
 
 func (s *UserServiceImpl) Login(ctx context.Context, req *dto.LoginRequest) (resp *dto.LoginResponse, err error) {

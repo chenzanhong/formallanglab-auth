@@ -1,12 +1,12 @@
 package repository
 
 import (
-	"auth/internal/domain/model"
 	"context"
 	"errors"
 	"fmt"
 	"time"
 
+	"github.com/chenzanhong/formallanglab-auth/internal/domain/model"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
@@ -57,6 +57,7 @@ func (r *UserRepositoryImpl) ExistsByID(ctx context.Context, id int64) (bool, er
 	if err := r.DB.WithContext(ctx).Model(&model.User{}).Where("id = ?", id).Count(&count).Error; err != nil {
 		return false, err
 	}
+
 	return count > 0, nil
 }
 
@@ -65,6 +66,7 @@ func (r *UserRepositoryImpl) ExistsByName(ctx context.Context, name string) (boo
 	if err := r.DB.WithContext(ctx).Model(&model.User{}).Where("name = ?", name).Count(&count).Error; err != nil {
 		return false, err
 	}
+
 	return count > 0, nil
 }
 
@@ -73,6 +75,7 @@ func (r *UserRepositoryImpl) ExistsByEmail(ctx context.Context, email string) (b
 	if err := r.DB.WithContext(ctx).Model(&model.User{}).Where("email = ?", email).Count(&count).Error; err != nil {
 		return false, err
 	}
+
 	return count > 0, nil
 }
 
@@ -81,6 +84,7 @@ func (r *UserRepositoryImpl) GetAllUsers(ctx context.Context) ([]*model.User, er
 	if err := r.DB.WithContext(ctx).Find(&users).Error; err != nil {
 		return nil, err
 	}
+
 	return users, nil
 }
 
@@ -89,6 +93,7 @@ func (r *UserRepositoryImpl) GetUserByID(ctx context.Context, id int64) (*model.
 	if err := r.DB.WithContext(ctx).First(&user, id).Error; err != nil {
 		return nil, err
 	}
+
 	return &user, nil
 }
 
@@ -97,6 +102,7 @@ func (r *UserRepositoryImpl) GetUserByEmail(ctx context.Context, email string) (
 	if err := r.DB.WithContext(ctx).Where("email = ?", email).First(&user).Error; err != nil {
 		return nil, err
 	}
+
 	return &user, nil
 }
 
@@ -105,6 +111,7 @@ func (r *UserRepositoryImpl) GetUserByName(ctx context.Context, name string) (*m
 	if err := r.DB.WithContext(ctx).Where("name = ?", name).First(&user).Error; err != nil {
 		return nil, err
 	}
+
 	return &user, nil
 }
 
@@ -142,6 +149,7 @@ func (r *UserRepositoryImpl) SaveRefreshToken(ctx context.Context, refreshToken 
 	key := fmt.Sprintf("refresh_token:%s", refreshToken)
 	// 保存refresh token，设置30天过期时间
 	value := fmt.Sprintf("%s:%d", username, userID)
+
 	return r.Redis.Set(ctx, key, value, 30*24*time.Hour).Err()
 }
 

@@ -1,12 +1,8 @@
 package api
 
 import (
-	"auth/internal/middleware"
-
-	// aiSvc "auth/internal/service/ai"
-
-	mtr "auth/internal/metrics"
-
+	mtr "github.com/chenzanhong/formallanglab-auth/internal/metrics"
+	"github.com/chenzanhong/formallanglab-auth/internal/middleware"
 	"github.com/chenzanhong/goutil/jwtx"
 	"github.com/gin-gonic/gin"
 )

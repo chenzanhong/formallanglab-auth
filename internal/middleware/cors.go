@@ -11,12 +11,12 @@ func CORSMiddleware() gin.HandlerFunc {
 	config.AllowOrigins = []string{
 		"https://caohaitong.xyz",
 		"http://caohaitong.xyz",
-		"http://113.44.170.52",  
+		"http://113.44.170.52",
 		"https://113.44.170.52",
 		"http://localhost:5173",
 		"http://localhost:3000",
 	}
-	config.AllowCredentials= true
+	config.AllowCredentials = true
 	//  允许的源，可以根据需要修改http://localhost:8081
 	// config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	// config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}

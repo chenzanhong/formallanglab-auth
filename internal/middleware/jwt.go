@@ -24,6 +24,7 @@ func GenerateAccessToken(username string, userID int64, expireTimeSeconds int) (
 			IssuedAt:  jwtx.NewNumericDate(time.Now()),
 		},
 	}
+
 	return jwtx.SignToken(claims) // 使用全局配置签名
 }
 
@@ -33,5 +34,6 @@ func GenerateRandomRefreshToken() (string, error) {
 	if _, err := rand.Read(bytes); err != nil {
 		return "", err
 	}
+
 	return hex.EncodeToString(bytes), nil // e.g., "a1b2c3...f9"
 }

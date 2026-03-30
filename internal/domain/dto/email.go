@@ -14,6 +14,5 @@ type SendResetPasswordVerificationCodeRequest struct {
 
 type SendResetPasswordVerificationCodeResponse = BaseResponse
 
-
 // 验证码响应
 type VerificationCodeResponse = BaseResponse
