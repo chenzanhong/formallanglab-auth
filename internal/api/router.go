@@ -1,7 +1,7 @@
 package api
 
 import (
-	mtr "github.com/chenzanhong/formallanglab-auth/internal/metrics"
+	"github.com/chenzanhong/formallanglab-auth/internal/metrics"
 	"github.com/chenzanhong/formallanglab-auth/internal/middleware"
 	"github.com/chenzanhong/goutil/jwtx"
 	"github.com/gin-gonic/gin"
@@ -9,6 +9,9 @@ import (
 
 func SetupRouter(userHandler *UserHandler, emailHandler *EmailHandler) *gin.Engine {
 	router := gin.Default()
+
+	// 1. 恢复中间件 - 最先使用，捕获所有panic
+	// router.Use(gin.Recovery())
 
 	// 2. 请求ID中间件 - 尽早设置，让后续中间件都能使用
 	router.Use(middleware.RequestID())
@@ -20,7 +23,7 @@ func SetupRouter(userHandler *UserHandler, emailHandler *EmailHandler) *gin.Engi
 	// 5. 日志中间件 - 在业务逻辑前记录请求，在业务逻辑后记录响应。日志中间件，但是感觉有点笨重，暂时不使用
 	// router.Use(middleware.Logging(middleware.DefaultLoggingConfig))
 	// 6. 指标收集 - 收集所有处理过程的指标
-	router.Use(mtr.HTTPMiddleware())
+	router.Use(metrics.HTTPMiddleware())
 
 	auth := router.Group("/gdesign/auth")
 	setupPublicRoutes(auth, userHandler, emailHandler) // 注册公开路由
@@ -41,7 +44,7 @@ func setupPublicRoutes(router *gin.RouterGroup, userHandler *UserHandler, emailH
 			"status": "ok",
 		})
 	})
-	router.GET("/metrics", mtr.MetricsHandler())                                                                      // 不需要限速                                                                        // prometheus.yml中加上 metrics_path: /metrics
+	router.GET("/metrics", metrics.MetricsHandler())                                                                      // 不需要限速；prometheus.yml中加上 metrics_path: /metrics
 	router.POST("/register", middleware.GlobalRateLimitMiddleware(), userHandler.Register)                            // 注册
 	router.POST("/login", middleware.GlobalRateLimitMiddleware(), userHandler.Login)                                  // 登入
 	router.POST("/logout", middleware.GlobalRateLimitMiddleware(), userHandler.Logout)                                // 登出

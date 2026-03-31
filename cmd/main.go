@@ -50,18 +50,18 @@ func main() {
 		zlog.Fatalf("Failed to initialize database: %v", err)
 	}
 
-	// 3. 组装服务
+	// 2. 组装服务
 	userRepo := rep.NewUserRepository(repo.DB, repo.Redis)
 	emailRepo := rep.NewEmailRepository(repo.DB, repo.Redis)
 	kafkaProducer := kafka_s.NewDefaultKafkaProducerService()
 	userService := userSvc.NewUserService(userRepo, emailRepo, config.JWT)
 	emailService := emailSvc.NewEmailService(emailRepo, userRepo, kafkaProducer)
 
-	// 4. 初始化处理器
+	// 3. 初始化处理器
 	userHandler := api.NewUserHandler(userService)
 	emailHandler := api.NewEmailHandler(emailService)
 
-	// 5. 注册路由
+	// 4. 注册路由
 	r := api.SetupRouter(userHandler, emailHandler)
 
 	// 5. 创建 HTTP 服务实例
@@ -120,23 +120,23 @@ func main() {
 
 	zlog.Info("Server started on :8080")
 
-	// 8. 等待中断信号
+	// 7. 等待中断信号
 	<-ctx.Done()
 
 	zlog.Info("Shutting down server...")
 
-	// 9. 创建一个超时 context 控制优雅关闭时间
+	// 8. 创建一个超时 context 控制优雅关闭时间
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// 10. 停止 HTTP 服务
+	// 9. 停止 HTTP 服务
 	if err := srv.Shutdown(shutdownCtx); err != nil {
 		zlog.Errorf("HTTP server Shutdown error: %v", err)
 	} else {
 		zlog.Info("HTTP server gracefully stopped")
 	}
 
-	// 11. 关闭 pg 数据库连接 *gorm.DB
+	// 10. 关闭 pg 数据库连接 *gorm.DB
 	sqlDB, gormErr := repo.DB.DB()
 	if gormErr == nil {
 		if err := sqlDB.Close(); err != nil {
@@ -148,14 +148,14 @@ func main() {
 		zlog.Error("Failed to get underlying SQL DB from GORM")
 	}
 
-	// 12. 关闭 Redis 连接
+	// 11. 关闭 Redis 连接
 	if err := repo.Redis.Close(); err != nil {
 		zlog.Errorf("Redis Close error: %v", err)
 	} else {
 		zlog.Info("Redis connection closed")
 	}
 
-	// 13. 关闭Kafka生产者
+	// 12. 关闭Kafka生产者
 	kafkaProducer.Close()
 
 	zlog.Info("Server exited")

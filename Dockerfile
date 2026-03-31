@@ -60,34 +60,3 @@ EXPOSE 8080 4000 6060
 
 # 运行应用
 CMD ["/app/auth-server"]
-
-# ======================= 使用说明 =======================
-# 1. 构建镜像：
-#    docker build -t gdesign-auth .
-#
-# 2. 准备环境：
-#    - 创建.env文件（从.env.example复制并填写实际密钥）
-#    - 确保PostgreSQL和Redis服务正在运行
-#
-# 3. 运行容器（方式1：使用环境变量传递敏感信息）：
-#    docker run -d \
-#      --name gdesign-auth \
-#      -p 8080:8080 \
-#      -e DB_HOST=host.docker.internal \
-#      -e DB_PASSWORD=your_db_password \
-#      -e JWT_KEY=your_jwt_key \
-#      -e REDIS_HOST=host.docker.internal \
-#      gdesign-auth
-#
-# 4. 运行容器（方式2：使用卷挂载配置文件）：
-#    docker run -d \
-#      --name gdesign-auth \
-#      -p 8080:8080 \
-#      -v $(pwd)/.env:/app/.env \
-#      -v $(pwd)/configs:/app/configs \
-#      -v $(pwd)/logs:/app/logs \
-#      -v $(pwd)/migrations:/app/migrations \
-#      gdesign-auth
-
-# docker build -t crpi-tcnuencv1iecgx03.cn-hangzhou.personal.cr.aliyuncs.com/chenzh2004/formallanglab-auth .
-# docker push crpi-tcnuencv1iecgx03.cn-hangzhou.personal.cr.aliyuncs.com/chenzh2004/formallanglab-auth
