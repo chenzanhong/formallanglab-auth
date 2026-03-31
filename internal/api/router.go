@@ -44,7 +44,7 @@ func setupPublicRoutes(router *gin.RouterGroup, userHandler *UserHandler, emailH
 			"status": "ok",
 		})
 	})
-	router.GET("/metrics", metrics.MetricsHandler())                                                                      // 不需要限速；prometheus.yml中加上 metrics_path: /metrics
+	router.GET("/metrics", metrics.MetricsHandler())                                                                  // 不需要限速；prometheus.yml中加上 metrics_path: /metrics
 	router.POST("/register", middleware.GlobalRateLimitMiddleware(), userHandler.Register)                            // 注册
 	router.POST("/login", middleware.GlobalRateLimitMiddleware(), userHandler.Login)                                  // 登入
 	router.POST("/logout", middleware.GlobalRateLimitMiddleware(), userHandler.Logout)                                // 登出

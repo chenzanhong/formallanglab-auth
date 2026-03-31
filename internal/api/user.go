@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
@@ -41,33 +42,23 @@ func (h *UserHandler) Register(c *gin.Context) {
 
 	newUser, err := h.userService.Register(c.Request.Context(), req.Name, req.Email, req.Password, req.Token)
 	if err != nil {
-		switch err {
-		case myErrors.ErrPasswordHashFailed:
+		switch {
+		case errors.Is(err, myErrors.ErrPasswordHashFailed):
 			metrics.IncOperation("user", "register", "failure: password encryption error")
 			zlog.Errorw("密码加密失败")
-			c.JSON(http.StatusInternalServerError, dto.RegisterResponse{
-				Result: false,
-				Msg:    "密码加密失败",
-			})
+			c.JSON(http.StatusInternalServerError, dto.RegisterResponse{Result: false, Msg: "密码加密失败"})
 
 			return
-		case myErrors.ErrUserCreationFailed:
+		case errors.Is(err, myErrors.ErrUserCreationFailed):
 			metrics.IncOperation("user", "register", "failure: user creation error")
 			zlog.Errorw("用户创建失败")
-			c.JSON(http.StatusInternalServerError, dto.RegisterResponse{
-				Result: false,
-				Msg:    "用户创建失败",
-			})
+			c.JSON(http.StatusInternalServerError, dto.RegisterResponse{Result: false, Msg: "用户创建失败"})
 
 			return
 		default:
 			metrics.IncOperation("user", "register", "failure: unknown error")
 			zlog.Warnw("注册失败", "detail", err.Error())
-			c.JSON(http.StatusInternalServerError, dto.RegisterResponse{
-				Result: false,
-				Msg:    "注册失败",
-				Error:  err.Error(),
-			})
+			c.JSON(http.StatusInternalServerError, dto.RegisterResponse{Result: false, Msg: "注册失败", Error: err.Error()})
 
 			return
 		}
@@ -105,32 +96,23 @@ func (h *UserHandler) Login(c *gin.Context) {
 	// 调用服务层登录逻辑
 	resp, err := h.userService.Login(c.Request.Context(), &req)
 	if err != nil {
-		switch err {
-		case myErrors.ErrUserNotFound:
+		switch {
+		case errors.Is(err, myErrors.ErrUserNotFound):
 			metrics.IncOperation("user", "login", "failure: user not found")
 			zlog.Warnw("用户名或密码错误", "username", req.Name)
-			c.JSON(http.StatusUnauthorized, dto.LoginResponse{
-				Result: false,
-				Msg:    "用户名或密码错误",
-			})
+			c.JSON(http.StatusUnauthorized, dto.LoginResponse{Result: false, Msg: "用户名或密码错误"})
 
 			return
-		case myErrors.ErrInvalidCredentials:
+		case errors.Is(err, myErrors.ErrInvalidCredentials):
 			metrics.IncOperation("user", "login", "failure: invalid password")
 			zlog.Warnw("用户名或密码错误", "username", req.Name)
-			c.JSON(http.StatusUnauthorized, dto.LoginResponse{
-				Result: false,
-				Msg:    "用户名或密码错误",
-			})
+			c.JSON(http.StatusUnauthorized, dto.LoginResponse{Result: false, Msg: "用户名或密码错误"})
 
 			return
 		default:
 			metrics.IncOperation("user", "login", "failure: unknown error")
 			zlog.Warnw("登录失败", "detail", err.Error())
-			c.JSON(http.StatusInternalServerError, dto.LoginResponse{
-				Result: false,
-				Msg:    "登录失败",
-			})
+			c.JSON(http.StatusInternalServerError, dto.LoginResponse{Result: false, Msg: "登录失败"})
 
 			return
 		}
@@ -226,20 +208,12 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 	// 调用服务层刷新令牌逻辑
 	resp, err := h.userService.Refresh(c.Request.Context(), refreshToken)
 	if err != nil {
-		switch err {
-		case myErrors.ErrInvalidToken:
-			c.JSON(http.StatusUnauthorized, dto.LoginResponse{
-				Result: false,
-				Msg:    "无效的刷新令牌",
-			})
-
+		switch {
+		case errors.Is(err, myErrors.ErrInvalidToken):
+			c.JSON(http.StatusUnauthorized, dto.LoginResponse{Result: false, Msg: "无效的刷新令牌"})
 			return
 		default:
-			c.JSON(http.StatusInternalServerError, dto.LoginResponse{
-				Result: false,
-				Msg:    "刷新令牌失败",
-			})
-
+			c.JSON(http.StatusInternalServerError, dto.LoginResponse{Result: false, Msg: "刷新令牌失败"})
 			return
 		}
 	}
@@ -283,20 +257,20 @@ func (h *UserHandler) ResetPassword(c *gin.Context) {
 
 	err := h.userService.ResetPassword(c.Request.Context(), request.Token, request.NewPassword)
 	if err != nil {
-		switch err {
-		case myErrors.ErrInvalidToken:
+		switch {
+		case errors.Is(err, myErrors.ErrInvalidToken):
 			metrics.IncOperation("email", "reset_password", "failure: invalid token")
 			zlog.Warnw("重置密码失败", "detail", "验证码错误或已过期")
 			c.JSON(http.StatusUnauthorized, dto.ResetPasswordResponse{Msg: "验证码错误或已过期", Result: false})
 
 			return
-		case myErrors.ErrPasswordHashFailed:
+		case errors.Is(err, myErrors.ErrPasswordHashFailed):
 			metrics.IncOperation("email", "reset_password", "failure: password encryption error")
 			zlog.Errorw("重置密码失败", "detail", "密码加密失败")
 			c.JSON(http.StatusInternalServerError, dto.ResetPasswordResponse{Msg: "密码加密失败", Result: false})
 
 			return
-		case myErrors.ErrUserNotFound:
+		case errors.Is(err, myErrors.ErrUserNotFound):
 			metrics.IncOperation("email", "reset_password", "failure: user not found")
 			zlog.Warnw("重置密码失败", "detail", "用户不存在")
 			c.JSON(http.StatusUnauthorized, dto.ResetPasswordResponse{Msg: "用户不存在", Result: false})
