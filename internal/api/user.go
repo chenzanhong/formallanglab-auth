@@ -161,25 +161,17 @@ func (h *UserHandler) Logout(c *gin.Context) {
 
 // Refresh 处理刷新令牌请求
 func (h *UserHandler) Refresh(c *gin.Context) {
-	if c.Request.TLS == nil { // http
-		// 🚨 开发模式：跳过 refresh token 验证，直接生成新 token
-		// 注意：仅用于本地开发！生产环境必须禁用！
-
+	if c.Request.TLS == nil { // 开发模式：跳过 refresh token 验证，直接生成新 token
 		user, err := h.userService.GetUser(c.Request.Context(), 1)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, dto.RefreshResponse{
 				Result: false,
 				Msg:    "获取用户信息失败",
 			})
-
 			return
 		}
 
-		// 调用服务层生成新的 access token（不依赖 refresh token）
 		accessToken, _ := middleware.GenerateAccessToken(user.Name, user.ID, 3600)
-
-		// 注意：本地开发可不更新 refreshToken cookie，或也 mock 一个
-		// 如果需要保持登录状态更久，可以设置一个 dummy refreshToken
 		c.SetCookie("refreshToken", "dev_refresh_token", 7*24*60*60, "/", "", false, true)
 
 		c.JSON(http.StatusOK, dto.RefreshResponse{
@@ -189,23 +181,18 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 			Name:        user.Name,
 			ID:          user.ID,
 		})
-
 		return
 	}
-	// https
 
-	// 从Cookie中获取刷新令牌
 	refreshToken, err := c.Cookie("refreshToken")
 	if err != nil || refreshToken == "" {
 		c.JSON(http.StatusUnauthorized, dto.LoginResponse{
 			Result: false,
 			Msg:    "缺少刷新令牌",
 		})
-
 		return
 	}
 
-	// 调用服务层刷新令牌逻辑
 	resp, err := h.userService.Refresh(c.Request.Context(), refreshToken)
 	if err != nil {
 		switch {
@@ -218,8 +205,7 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 		}
 	}
 
-	// 设置新的刷新令牌到HttpOnly Cookie中
-	c.SetCookie("refreshToken", resp.RefreshToken, 7*24*60*60, "/", "", true, true) // 7天过期
+	c.SetCookie("refreshToken", resp.RefreshToken, 7*24*60*60, "/", "", true, true)
 
 	c.JSON(http.StatusOK, dto.RefreshResponse{
 		Result:      true,

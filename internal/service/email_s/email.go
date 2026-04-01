@@ -13,7 +13,6 @@ import (
 	kafka_s "github.com/chenzanhong/formallanglab-auth/internal/service/kafka_s"
 	"github.com/chenzanhong/formallanglab-auth/pkg/token"
 	"github.com/chenzanhong/zlog"
-	"gorm.io/gorm"
 )
 
 // ====== 频率限制与异步发送逻辑 ======
@@ -53,13 +52,11 @@ func NewEmailService(emailRepo repository.EmailRepository, userRepo repository.U
 
 // 服务：注册账号，发送验证码
 func (s *EmailServiceImpl) SendRegisterVerificationCode(ctx context.Context, email string) error {
-	// 限制频率，验证码有效期一分钟，不能重复发送
 	if has, _ := s.emailRepo.HasRegisterVerificationToken(ctx, email); has {
-		// zlog.Warnw("发送注册验证码", "detail", "操作太频繁，请稍后重试")
+		// 限制频率，验证码有效期一分钟，不能重复发送
 		return errors.New("操作太频繁，请稍后重试")
 	}
 
-	// 检查邮箱是否存在
 	exists, err := s.userRepo.ExistsByEmail(ctx, email)
 	if err != nil {
 		zlog.Errorw("数据库查询失败", "error", err)
@@ -69,16 +66,13 @@ func (s *EmailServiceImpl) SendRegisterVerificationCode(ctx context.Context, ema
 		return errors.New("邮箱已存在")
 	}
 
-	// 生成验证码
 	verificationCode := token.GenerateRandomToken(6)
 	zlog.Infow("发送注册验证码", "email", email, "code", verificationCode)
 
-	// 保存token到Redis，过期时间1分钟
 	if err := s.emailRepo.SaveRegisterVerificationToken(ctx, email, verificationCode); err != nil {
 		return errors.New("保存验证码失败")
 	}
 
-	// 异步发送注册验证码邮件
 	return s.sendRegisterEmail(email, verificationCode)
 }
 
@@ -86,39 +80,27 @@ func (s *EmailServiceImpl) SendRegisterVerificationCode(ctx context.Context, ema
 func (s *EmailServiceImpl) SendResetPwdVerificationCode(ctx context.Context, email string) error {
 	// 限制频率，验证码有效期一分钟，不能重复发送
 	if has, _ := s.emailRepo.HasResetPwdToken(ctx, email); has {
-		zlog.Warnw("发送重置密码验证码", "detail", "操作太频繁，请稍后重试")
 		return errors.New("操作太频繁，请稍后重试")
 	}
 
-	// 检查邮箱是否存在
 	exists, err := s.userRepo.ExistsByEmail(ctx, email)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			zlog.Warnw("重置密码请求", "detail", "用户未找到。")
-			return myErrors.ErrUserNotFound
-		} else {
-			zlog.Errorw("重置密码请求", "detail", "数据库查询失败。")
-			return myErrors.ErrInternal
-		}
+		zlog.Errorw("重置密码请求", "detail", "数据库查询失败。")
+		return myErrors.ErrInternal
 	}
 	if !exists {
 		return myErrors.ErrUserNotFound
 	}
 
-	// 生成 6 位数字 token
 	token := token.GenerateRandomToken(6)
 	zlog.Infow("生成找回密码 token", "email", email, "token", token)
 
-	// 保存到 Redis，1 分钟过期
 	if err := s.emailRepo.SaveResetPwdToken(ctx, token, email); err != nil {
 		zlog.Errorw("保存找回密码 token 失败", "error", err)
 		return myErrors.ErrInternal
 	}
 
-	// 发送重置密码邮件（异步），不处理错误，发送失败用户一分钟后重试
 	s.sendResetPwdEmail(email, token)
-
-	zlog.Infow("重置密码请求", "detail", "重置密码请求成功。")
 
 	return nil
 }
