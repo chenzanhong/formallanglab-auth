@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/chenzanhong/formallanglab-auth/configs"
-	cf "github.com/chenzanhong/formallanglab-auth/configs"
 	"github.com/chenzanhong/formallanglab-auth/internal/api"
 	mtr "github.com/chenzanhong/formallanglab-auth/internal/metrics"
 	"github.com/chenzanhong/formallanglab-auth/internal/middleware"
@@ -37,7 +36,7 @@ func main() {
 		log.Fatalf("加载配置失败：%v", err.Error())
 	}
 	// 2. 设置环境变量
-	cf.SyncConfigToEnv(*config)
+	configs.SyncConfigToEnv(*config)
 	// 3. 初始化JWT
 	jwtx.InitWithHS256(
 		os.Getenv("JWT_KEY"),
@@ -116,7 +115,7 @@ func main() {
 
 		// 检查证书是否存在
 		if _, err := os.Stat(certFile); os.IsNotExist(err) {
-			log.Fatalf("TLS certificate not found. Please generate localhost.crt and localhost.key")
+			zlog.Fatalf("TLS certificate not found. Please generate localhost.crt and localhost.key")
 		}
 		// 启动 HTTPS 服务
 		go func() {

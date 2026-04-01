@@ -170,7 +170,6 @@ func (m *mockUserRepository) GetUserNameAndIDByRefreshToken(ctx context.Context,
 type mockEmailRepository struct {
 	registerTokens map[string]string
 	resetTokens    map[string]string
-	emailTokens    map[string]string
 }
 
 func (m *mockEmailRepository) SaveRegisterVerificationToken(ctx context.Context, email, token string) error {

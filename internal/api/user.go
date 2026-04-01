@@ -168,6 +168,7 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 				Result: false,
 				Msg:    "获取用户信息失败",
 			})
+
 			return
 		}
 
@@ -181,6 +182,7 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 			Name:        user.Name,
 			ID:          user.ID,
 		})
+
 		return
 	}
 
@@ -190,6 +192,7 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 			Result: false,
 			Msg:    "缺少刷新令牌",
 		})
+
 		return
 	}
 
