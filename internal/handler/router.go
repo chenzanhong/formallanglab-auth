@@ -1,4 +1,4 @@
-package api
+package handler
 
 import (
 	"github.com/chenzanhong/formallanglab-auth/internal/metrics"

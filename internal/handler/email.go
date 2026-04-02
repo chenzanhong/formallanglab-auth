@@ -1,5 +1,5 @@
 // auth/internal/api/email/email.go
-package api
+package handler
 
 import (
 	"net/http"

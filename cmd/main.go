@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/chenzanhong/formallanglab-auth/configs"
-	"github.com/chenzanhong/formallanglab-auth/internal/api"
+	"github.com/chenzanhong/formallanglab-auth/internal/handler"
 	mtr "github.com/chenzanhong/formallanglab-auth/internal/metrics"
 	"github.com/chenzanhong/formallanglab-auth/internal/middleware"
 	rep "github.com/chenzanhong/formallanglab-auth/internal/repository"
@@ -61,11 +61,11 @@ func main() {
 	emailService := emailSvc.NewEmailService(emailRepo, userRepo, kafkaProducer)
 
 	// 7. 初始化处理器
-	userHandler := api.NewUserHandler(userService)
-	emailHandler := api.NewEmailHandler(emailService)
+	userHandler := handler.NewUserHandler(userService)
+	emailHandler := handler.NewEmailHandler(emailService)
 
 	// 8. 注册路由
-	r := api.SetupRouter(userHandler, emailHandler)
+	r := handler.SetupRouter(userHandler, emailHandler)
 
 	// 9. 创建 HTTP 服务实例
 	srv := &http.Server{
