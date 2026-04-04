@@ -8,7 +8,6 @@ import (
 	"github.com/chenzanhong/formallanglab-auth/internal/domain/dto"
 	myErrors "github.com/chenzanhong/formallanglab-auth/internal/errors"
 	"github.com/chenzanhong/formallanglab-auth/internal/metrics"
-	"github.com/chenzanhong/formallanglab-auth/internal/middleware"
 	userSvc "github.com/chenzanhong/formallanglab-auth/internal/service/user_s"
 	"github.com/chenzanhong/zlog"
 	"github.com/gin-gonic/gin"
@@ -161,28 +160,13 @@ func (h *UserHandler) Logout(c *gin.Context) {
 
 // Refresh 处理刷新令牌请求
 func (h *UserHandler) Refresh(c *gin.Context) {
-	if c.Request.TLS == nil { // 开发模式：跳过 refresh token 验证，直接生成新 token
-		user, err := h.userService.GetUser(c.Request.Context(), 1)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, dto.RefreshResponse{
-				Result: false,
-				Msg:    "获取用户信息失败",
-			})
-
-			return
-		}
-
-		accessToken, _ := middleware.GenerateAccessToken(user.Name, user.ID, 3600)
-		c.SetCookie("refreshToken", "dev_refresh_token", 7*24*60*60, "/", "", false, true)
-
-		c.JSON(http.StatusOK, dto.RefreshResponse{
-			Result:      true,
-			Msg:         "开发模式：令牌已模拟刷新",
-			AccessToken: accessToken,
-			Name:        user.Name,
-			ID:          user.ID,
+	// 在 Nginx + Docker 架构下，Go 服务监听 HTTP，由 Nginx 处理 HTTPS 终止
+	// 通过 X-Forwarded-Proto 头判断请求是否来自 HTTPS
+	if !isRequestHTTPS(c) {
+		c.JSON(http.StatusUnauthorized, dto.LoginResponse{
+			Result: false,
+			Msg:    "仅支持 HTTPS 请求",
 		})
-
 		return
 	}
 
@@ -192,7 +176,6 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 			Result: false,
 			Msg:    "缺少刷新令牌",
 		})
-
 		return
 	}
 
@@ -217,6 +200,11 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 		Name:        resp.Name,
 		ID:          resp.ID,
 	})
+}
+
+func isRequestHTTPS(c *gin.Context) bool {
+	// 通过反向代理（Nginx）传递的 X-Forwarded-Proto 头判断
+	return c.GetHeader("X-Forwarded-Proto") == "https"
 }
 
 // 重置密码

@@ -15,11 +15,10 @@ import (
 )
 
 type ServerConfig struct {
-	Port        int    `yaml:"port"`
-	MetricsPort int    `yaml:"metrics_port"`
-	PprofPort   int    `yaml:"pprof_port"`
-	EnableTrace bool   `yaml:"enable_trace"`
-	Env         string `yaml:"env"`
+	Port        int  `yaml:"port"`
+	MetricsPort int  `yaml:"metrics_port"`
+	PprofPort   int  `yaml:"pprof_port"`
+	EnableTrace bool `yaml:"enable_trace"`
 }
 
 type JWTConfig struct {
@@ -174,7 +173,6 @@ func ApplyEnvToConfig(cfg *Config) {
 	cfg.Server.MetricsPort = getEnvInt("METRICS_PORT", cfg.Server.MetricsPort)
 	cfg.Server.PprofPort = getEnvInt("PPROF_PORT", cfg.Server.PprofPort)
 	cfg.Server.EnableTrace = getEnvBool("ENABLE_TRACE", cfg.Server.EnableTrace)
-	cfg.Server.Env = getEnv("SERVER_ENV", cfg.Server.Env)
 
 	// JWT
 	cfg.JWT.Key = getEnv("JWT_KEY", cfg.JWT.Key)
@@ -261,7 +259,6 @@ func SyncConfigToEnv(config Config) {
 	setEnvIfNotSet("METRICS_PORT", strconv.Itoa(config.Server.MetricsPort))
 	setEnvIfNotSet("PPROF_PORT", strconv.Itoa(config.Server.PprofPort))
 	setEnvIfNotSet("ENABLE_TRACE", strconv.FormatBool(config.Server.EnableTrace))
-	setEnvIfNotSet("SERVER_ENV", config.Server.Env)
 
 	// jwt
 	setEnvIfNotSet("JWT_KEY", config.JWT.Key)

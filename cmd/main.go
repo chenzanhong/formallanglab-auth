@@ -108,31 +108,12 @@ func main() {
 	}()
 
 	// 13. 启动主 HTTP 服务
-	// 根据 SERVER_ENV 环境变量决定启动 HTTP 或 HTTPS 服务
-	if v, ok := os.LookupEnv("SERVER_ENV"); ok && v == "pro" {
-		certFile := "localhost.crt"
-		keyFile := "localhost.key"
-
-		// 检查证书是否存在
-		if _, err := os.Stat(certFile); os.IsNotExist(err) {
-			zlog.Fatalf("TLS certificate not found. Please generate localhost.crt and localhost.key")
+	go func() {
+		zlog.Infof("Starting HTTP server on http://localhost:%s", os.Getenv("SERVER_PORT"))
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			zlog.Fatalf("HTTP server ListenAndServe error: %v", err)
 		}
-		// 启动 HTTPS 服务
-		go func() {
-			// 启动 HTTPS 服务器
-			zlog.Infof("Starting HTTPS server on https://localhost:%s", os.Getenv("SERVER_PORT"))
-			if err := srv.ListenAndServeTLS(certFile, keyFile); err != nil && err != http.ErrServerClosed {
-				zlog.Fatalf("HTTP server ListenAndServe error: %v", err)
-			}
-		}()
-	} else {
-		// 启动 HTTP 服务
-		go func() {
-			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-				zlog.Fatalf("HTTP server ListenAndServe error: %v", err)
-			}
-		}()
-	}
+	}()
 
 	zlog.Info("Server started on :8080")
 
