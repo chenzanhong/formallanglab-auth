@@ -5,12 +5,13 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/chenzanhong/zlog"
+	"github.com/gin-gonic/gin"
+
 	"github.com/chenzanhong/formallanglab-auth/internal/domain/dto"
 	myErrors "github.com/chenzanhong/formallanglab-auth/internal/errors"
 	"github.com/chenzanhong/formallanglab-auth/internal/metrics"
 	userSvc "github.com/chenzanhong/formallanglab-auth/internal/service/user_s"
-	"github.com/chenzanhong/zlog"
-	"github.com/gin-gonic/gin"
 )
 
 type UserHandler struct {
@@ -167,6 +168,7 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 			Result: false,
 			Msg:    "仅支持 HTTPS 请求",
 		})
+
 		return
 	}
 
@@ -176,6 +178,7 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 			Result: false,
 			Msg:    "缺少刷新令牌",
 		})
+
 		return
 	}
 

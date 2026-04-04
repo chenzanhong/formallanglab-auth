@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"github.com/chenzanhong/formallanglab-auth/pkg/cryptoutil"
 	"github.com/chenzanhong/zlog"
+
+	"github.com/chenzanhong/formallanglab-auth/pkg/cryptoutil"
 )
 
 func (s *UserServiceImpl) ResetPassword(ctx context.Context, token, newPassword string) error {

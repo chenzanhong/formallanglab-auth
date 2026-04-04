@@ -12,6 +12,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/chenzanhong/goutil/jwtx"
+	"github.com/chenzanhong/zlog"
+	"github.com/gin-gonic/gin"
+
 	"github.com/chenzanhong/formallanglab-auth/configs"
 	"github.com/chenzanhong/formallanglab-auth/internal/handler"
 	mtr "github.com/chenzanhong/formallanglab-auth/internal/metrics"
@@ -20,9 +24,6 @@ import (
 	emailSvc "github.com/chenzanhong/formallanglab-auth/internal/service/email_s"
 	kafka_s "github.com/chenzanhong/formallanglab-auth/internal/service/kafka_s"
 	userSvc "github.com/chenzanhong/formallanglab-auth/internal/service/user_s"
-	"github.com/chenzanhong/goutil/jwtx"
-	"github.com/chenzanhong/zlog"
-	"github.com/gin-gonic/gin"
 )
 
 func init() {

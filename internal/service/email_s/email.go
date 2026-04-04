@@ -7,12 +7,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/chenzanhong/zlog"
+
 	"github.com/chenzanhong/formallanglab-auth/internal/domain/model"
 	myErrors "github.com/chenzanhong/formallanglab-auth/internal/errors"
 	"github.com/chenzanhong/formallanglab-auth/internal/repository"
 	kafka_s "github.com/chenzanhong/formallanglab-auth/internal/service/kafka_s"
 	"github.com/chenzanhong/formallanglab-auth/pkg/token"
-	"github.com/chenzanhong/zlog"
 )
 
 // ====== 频率限制与异步发送逻辑 ======

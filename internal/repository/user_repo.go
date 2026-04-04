@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/chenzanhong/formallanglab-auth/internal/domain/model"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
+
+	"github.com/chenzanhong/formallanglab-auth/internal/domain/model"
 )
 
 type UserRepository interface {

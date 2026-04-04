@@ -1,10 +1,11 @@
 package handler
 
 import (
-	"github.com/chenzanhong/formallanglab-auth/internal/metrics"
-	"github.com/chenzanhong/formallanglab-auth/internal/middleware"
 	"github.com/chenzanhong/goutil/jwtx"
 	"github.com/gin-gonic/gin"
+
+	"github.com/chenzanhong/formallanglab-auth/internal/metrics"
+	"github.com/chenzanhong/formallanglab-auth/internal/middleware"
 )
 
 func SetupRouter(userHandler *UserHandler, emailHandler *EmailHandler) *gin.Engine {

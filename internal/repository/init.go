@@ -66,7 +66,7 @@ func InitPGData(db *gorm.DB, ctx context.Context) error {
 	for _, file := range files {
 		if !file.IsDir() && filepath.Ext(file.Name()) == ".sql" {
 			filePath := filepath.Join(migrationsDir, file.Name())
-			fmt.Println("Execute: ", filePath)
+			zlog.Info("Execute: " + filePath)
 			content, err := os.ReadFile(filePath)
 			if err != nil {
 				tx.Rollback()
@@ -83,7 +83,7 @@ func InitPGData(db *gorm.DB, ctx context.Context) error {
 	if err := tx.WithContext(ctx).Commit().Error; err != nil {
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
-	fmt.Println("Migration completed successfully.")
+	zlog.Info("Migration completed successfully.")
 
 	return nil
 }

@@ -5,11 +5,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/chenzanhong/zlog"
+	"github.com/gin-gonic/gin"
+
 	"github.com/chenzanhong/formallanglab-auth/internal/domain/dto"
 	"github.com/chenzanhong/formallanglab-auth/internal/metrics"
 	email "github.com/chenzanhong/formallanglab-auth/internal/service/email_s"
-	"github.com/chenzanhong/zlog"
-	"github.com/gin-gonic/gin"
 )
 
 type EmailHandler struct {

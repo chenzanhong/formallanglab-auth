@@ -7,8 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/chenzanhong/formallanglab-auth/internal/domain/model"
 	"github.com/segmentio/kafka-go"
+
+	"github.com/chenzanhong/formallanglab-auth/internal/domain/model"
 )
 
 type KafkaProducerService interface {

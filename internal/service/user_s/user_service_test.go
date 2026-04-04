@@ -5,13 +5,14 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/chenzanhong/goutil/jwtx"
+
 	"github.com/chenzanhong/formallanglab-auth/configs"
 	"github.com/chenzanhong/formallanglab-auth/internal/domain/dto"
 	"github.com/chenzanhong/formallanglab-auth/internal/domain/model"
 	userErrors "github.com/chenzanhong/formallanglab-auth/internal/errors"
 	"github.com/chenzanhong/formallanglab-auth/internal/middleware"
 	"github.com/chenzanhong/formallanglab-auth/pkg/cryptoutil"
-	"github.com/chenzanhong/goutil/jwtx"
 )
 
 func TestMain(m *testing.M) {
