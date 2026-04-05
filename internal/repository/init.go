@@ -88,7 +88,7 @@ func InitPGData(db *gorm.DB, ctx context.Context) error {
 	return nil
 }
 
-// 连接PostgreSQL
+// ConnectDB 连接 PostgreSQL
 func ConnectDB() (*gorm.DB, error) {
 	dsn := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s",
 		os.Getenv("DB_USER"),
@@ -114,7 +114,7 @@ func ConnectDB() (*gorm.DB, error) {
 	return db, nil
 }
 
-// 连接Redis
+// ConnectRedis 连接 Redis
 func ConnectRedis() (*redis.Client, error) {
 	host := os.Getenv("REDIS_HOST")
 	port := os.Getenv("REDIS_PORT")

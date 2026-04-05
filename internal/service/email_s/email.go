@@ -16,7 +16,7 @@ import (
 	"github.com/chenzanhong/formallanglab-auth/pkg/token"
 )
 
-// ====== 频率限制与异步发送逻辑 ======
+// 频率限制与异步发送逻辑
 const (
 	EmailTypeRegister = "register"
 	EmailTypeResetPwd = "reset"
@@ -51,7 +51,7 @@ func NewEmailService(emailRepo repository.EmailRepository, userRepo repository.U
 
 // ======================= 服务 =======================
 
-// 服务：注册账号，发送验证码
+// SendRegisterVerificationCode 服务：注册账号，发送验证码
 func (s *EmailServiceImpl) SendRegisterVerificationCode(ctx context.Context, email string) error {
 	if has, _ := s.emailRepo.HasRegisterVerificationToken(ctx, email); has {
 		// 限制频率，验证码有效期一分钟，不能重复发送
@@ -77,7 +77,7 @@ func (s *EmailServiceImpl) SendRegisterVerificationCode(ctx context.Context, ema
 	return s.sendRegisterEmail(email, verificationCode)
 }
 
-// 服务：处理重置密码请求，发送验证码
+// SendResetPwdVerificationCode 服务：处理重置密码请求，发送验证码
 func (s *EmailServiceImpl) SendResetPwdVerificationCode(ctx context.Context, email string) error {
 	// 限制频率，验证码有效期一分钟，不能重复发送
 	if has, _ := s.emailRepo.HasResetPwdToken(ctx, email); has {
@@ -108,7 +108,7 @@ func (s *EmailServiceImpl) SendResetPwdVerificationCode(ctx context.Context, ema
 
 // ======================= 邮件生产者=======================
 
-// 发送注册验证码邮件
+// sendRegisterEmail 发送注册验证码邮件
 func (s *EmailServiceImpl) sendRegisterEmail(email, code string) error {
 	subject := "FormalLangLab 注册验证码"
 	body := fmt.Sprintf(`
@@ -135,7 +135,7 @@ func (s *EmailServiceImpl) sendRegisterEmail(email, code string) error {
 	return s.sendEmailViaKafka(email, subject, "text/html", body)
 }
 
-// 发送重置密码的验证码邮件
+// sendResetPwdEmail 发送重置密码的验证码邮件
 func (s *EmailServiceImpl) sendResetPwdEmail(email, token string) error {
 	subject := "FormalLangLab 重置密码"
 	body := fmt.Sprintf(`

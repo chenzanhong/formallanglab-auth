@@ -210,7 +210,7 @@ func isRequestHTTPS(c *gin.Context) bool {
 	return c.GetHeader("X-Forwarded-Proto") == "https"
 }
 
-// 重置密码
+// ResetPassword 重置密码
 func (h *UserHandler) ResetPassword(c *gin.Context) {
 	start := time.Now()
 	defer func() {

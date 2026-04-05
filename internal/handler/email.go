@@ -21,7 +21,7 @@ func NewEmailHandler(emailService email.EmailService) *EmailHandler {
 	return &EmailHandler{emailService: emailService}
 }
 
-// 注册，发送验证码
+// SendRegisterVerificationCode 注册，发送验证码
 func (h *EmailHandler) SendRegisterVerificationCode(c *gin.Context) {
 	start := time.Now()
 	defer func() {
@@ -65,7 +65,7 @@ func (h *EmailHandler) SendRegisterVerificationCode(c *gin.Context) {
 	})
 }
 
-// 发送重置密码的验证码
+// SendResetPwdVerificationCode 发送重置密码的验证码
 func (h *EmailHandler) SendResetPwdVerificationCode(c *gin.Context) {
 	start := time.Now()
 	defer func() {
