@@ -89,11 +89,13 @@ func main() {
 		}
 	}()
 
-	// 11. 启动pprof http服务（通过 PPROF_PORT 环境变量控制，默认为 6060）
+	// 11. 启动 pprof http 服务（通过 PPROF_PORT 环境变量控制，默认为 6060）
 	go func() {
 		if v, ok := os.LookupEnv("PPROF_PORT"); ok && v != "" && v != "0" {
-			zlog.Infof("Starting pprof on localhost:%d", config.Server.PprofPort)
-			http.ListenAndServe(fmt.Sprintf("localhost:%d", config.Server.PprofPort), nil)
+			zlog.Info("Starting pprof on :"+v)
+			if err := http.ListenAndServe(":"+v, nil); err != nil {
+				zlog.Errorf("pprof server error: %v", err)
+			}
 		}
 	}()
 
