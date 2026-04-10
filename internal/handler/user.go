@@ -127,16 +127,12 @@ func (h *UserHandler) Login(c *gin.Context) {
 	zlog.Infow("登录成功", "user_id", resp.ID, "username", resp.Name)
 
 	response := dto.LoginResponse{
-		Result:      true,
-		Msg:         "登录成功",
-		AccessToken: resp.AccessToken,
-		Name:        resp.Name,
-		ID:          resp.ID,
-	}
-
-	// HTTP 情况下也返回 refreshToken 给前端（双重保障）
-	if !secure {
-		response.RefreshToken = resp.RefreshToken
+		Result:       true,
+		Msg:          "登录成功",
+		AccessToken:  resp.AccessToken,
+		RefreshToken: resp.RefreshToken,
+		Name:         resp.Name,
+		ID:           resp.ID,
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -181,8 +177,16 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 
 	// 如果 cookie 没有，且不是 HTTPS，尝试从请求体获取
 	if err != nil || refreshToken == "" {
+		zlog.Debugw("Refresh token not found in cookie",
+			"clientIP", c.ClientIP(),
+			"error", err)
+
 		if isRequestHTTPS(c) {
 			// HTTPS 情况下没有 cookie，直接返回错误
+			zlog.Warnw("Refresh token missing in HTTPS request",
+				"clientIP", c.ClientIP(),
+				"userAgent", c.Request.UserAgent())
+
 			c.JSON(http.StatusUnauthorized, dto.LoginResponse{
 				Result: false,
 				Msg:    "缺少刷新令牌",
@@ -200,6 +204,10 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 			RefreshToken string `json:"refreshToken"`
 		}
 		if err := c.ShouldBindJSON(&req); err != nil || req.RefreshToken == "" {
+			zlog.Warnw("Refresh token missing in request body",
+				"clientIP", c.ClientIP(),
+				"error", err)
+
 			c.JSON(http.StatusUnauthorized, dto.LoginResponse{
 				Result: false,
 				Msg:    "缺少刷新令牌",
@@ -212,6 +220,10 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 
 	resp, err := h.userService.Refresh(c.Request.Context(), refreshToken)
 	if err != nil {
+		zlog.Errorw("Refresh token service failed",
+			"clientIP", c.ClientIP(),
+			"error", err.Error())
+
 		switch {
 		case errors.Is(err, myErrors.ErrInvalidToken):
 			c.JSON(http.StatusUnauthorized, dto.LoginResponse{Result: false, Msg: "无效的刷新令牌"})
