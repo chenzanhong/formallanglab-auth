@@ -144,7 +144,7 @@ func (m *mockUserRepository) DeleteUserByName(ctx context.Context, name string) 
 	return nil
 }
 
-func (m *mockUserRepository) SaveRefreshToken(ctx context.Context, refreshToken string, username string, userID int64) error {
+func (m *mockUserRepository) SaveRefreshToken(ctx context.Context, refreshToken string, username string, userID int64, expireSeconds int) error {
 	m.refreshTokens[refreshToken] = username
 	return nil
 }

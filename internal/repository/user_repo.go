@@ -34,7 +34,7 @@ type UserRepository interface {
 	DeleteUserByName(ctx context.Context, name string) error
 
 	// Refresh token 相关方法
-	SaveRefreshToken(ctx context.Context, refreshToken string, username string, userID int64) error
+	SaveRefreshToken(ctx context.Context, refreshToken string, username string, userID int64, expireSeconds int) error
 	ValidateRefreshToken(ctx context.Context, refreshToken string) (bool, error)
 	RevokeRefreshToken(ctx context.Context, refreshToken string) error
 	GetUserNameAndIDByRefreshToken(ctx context.Context, refreshToken string) (string, int64, error)
@@ -144,14 +144,14 @@ func (r *UserRepositoryImpl) DeleteUserByName(ctx context.Context, name string) 
 	return r.DB.WithContext(ctx).Delete(&model.User{}, "name = ?", name).Error
 }
 
-// SaveRefreshToken 保存refresh token到Redis
+// SaveRefreshToken 保存 refresh token 到 Redis
 // 新机制：使用 refresh token 作为 key，用户 ID 作为 value
-func (r *UserRepositoryImpl) SaveRefreshToken(ctx context.Context, refreshToken string, username string, userID int64) error {
+func (r *UserRepositoryImpl) SaveRefreshToken(ctx context.Context, refreshToken string, username string, userID int64, expireSeconds int) error {
 	key := fmt.Sprintf("refresh_token:%s", refreshToken)
-	// 保存refresh token，设置30天过期时间
+	// 保存 refresh token，设置指定的过期时间（单位：秒）
 	value := fmt.Sprintf("%s:%d", username, userID)
 
-	return r.Redis.Set(ctx, key, value, 30*24*time.Hour).Err()
+	return r.Redis.Set(ctx, key, value, time.Duration(expireSeconds)*time.Second).Err()
 }
 
 // ValidateRefreshToken 验证refresh token是否有效

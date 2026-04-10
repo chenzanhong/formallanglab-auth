@@ -25,14 +25,8 @@ func (s *UserServiceImpl) Refresh(ctx context.Context, refreshToken string) (res
 		return nil, errors.ErrInvalidToken
 	}
 
-	// 获取用户信息
-	user, err := s.userRepo.GetUserByID(ctx, userID)
-	if err != nil {
-		return nil, errors.ErrInternal
-	}
-
 	// 生成新的访问令牌
-	accessToken, err := jwt.GenerateAccessToken(user.Name, user.ID, s.JwtCfg.AccessTokenExpireTime)
+	accessToken, err := jwt.GenerateAccessToken(username, userID, s.JwtCfg.AccessTokenExpireTime)
 	if err != nil {
 		return nil, errors.ErrTokenGenerationFailed
 	}
@@ -48,8 +42,8 @@ func (s *UserServiceImpl) Refresh(ctx context.Context, refreshToken string) (res
 		return nil, errors.ErrTokenRevokeFailed
 	}
 
-	// 保存新的刷新令牌
-	if err := s.userRepo.SaveRefreshToken(ctx, newRefreshToken, username, userID); err != nil {
+	// 保存新的刷新令牌，使用配置文件中的过期时间
+	if err := s.userRepo.SaveRefreshToken(ctx, newRefreshToken, username, userID, s.JwtCfg.RefreshTokenExpireTime); err != nil {
 		return nil, errors.ErrTokenSaveFailed
 	}
 
@@ -58,7 +52,7 @@ func (s *UserServiceImpl) Refresh(ctx context.Context, refreshToken string) (res
 		Msg:          "令牌刷新成功",
 		AccessToken:  accessToken,
 		RefreshToken: newRefreshToken,
-		Name:         user.Name,
-		ID:           user.ID,
+		Name:         username,
+		ID:           userID,
 	}, nil
 }

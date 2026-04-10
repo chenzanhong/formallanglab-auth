@@ -43,8 +43,8 @@ func (s *UserServiceImpl) Login(ctx context.Context, req *dto.LoginRequest) (res
 		return nil, errors.ErrTokenGenerationFailed
 	}
 
-	// 保存刷新令牌到Redis
-	if err := s.userRepo.SaveRefreshToken(ctx, refreshToken, user.Name, user.ID); err != nil {
+	// 保存刷新令牌到 Redis，使用配置文件中的过期时间
+	if err := s.userRepo.SaveRefreshToken(ctx, refreshToken, user.Name, user.ID, s.JwtCfg.RefreshTokenExpireTime); err != nil {
 		return nil, errors.ErrTokenSaveFailed
 	}
 

@@ -13,3 +13,4 @@ qa/
 *.key
 *.csr
 *.crt
+*.exe
