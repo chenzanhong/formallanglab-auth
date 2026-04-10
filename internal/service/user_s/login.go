@@ -34,18 +34,18 @@ func (s *UserServiceImpl) Login(ctx context.Context, req *dto.LoginRequest) (res
 	// 生成访问令牌 (JWT)
 	accessToken, err := jwt.GenerateAccessToken(user.Name, user.ID, s.JwtCfg.AccessTokenExpireTime)
 	if err != nil {
-		return nil, errors.ErrTokenGenerationFailed
+		return nil, errors.ErrAccessTokenGenerationFailed
 	}
 
 	// 生成刷新令牌 (随机字符串)
 	refreshToken, err := jwt.GenerateRandomRefreshToken()
 	if err != nil {
-		return nil, errors.ErrTokenGenerationFailed
+		return nil, errors.ErrRefreshTokenGenerationFailed
 	}
 
 	// 保存刷新令牌到 Redis，使用配置文件中的过期时间
 	if err := s.userRepo.SaveRefreshToken(ctx, refreshToken, user.Name, user.ID, s.JwtCfg.RefreshTokenExpireTime); err != nil {
-		return nil, errors.ErrTokenSaveFailed
+		return nil, errors.ErrRefreshTokenSaveFailed
 	}
 
 	return &dto.LoginResponse{
@@ -64,7 +64,7 @@ func (s *UserServiceImpl) Login(ctx context.Context, req *dto.LoginRequest) (res
 func (s *UserServiceImpl) RevokeRefreshToken(ctx context.Context, refreshToken string) error {
 	// 直接从Redis中删除刷新令牌
 	if err := s.userRepo.RevokeRefreshToken(ctx, refreshToken); err != nil {
-		return errors.ErrTokenRevokeFailed
+		return errors.ErrRefreshTokenRevokeFailed
 	}
 
 	return nil

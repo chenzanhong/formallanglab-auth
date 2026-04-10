@@ -207,7 +207,6 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 			zlog.Warnw("Refresh token missing in request body",
 				"clientIP", c.ClientIP(),
 				"error", err)
-
 			c.JSON(http.StatusUnauthorized, dto.LoginResponse{
 				Result: false,
 				Msg:    "缺少刷新令牌",
@@ -223,15 +222,9 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 		zlog.Errorw("Refresh token service failed",
 			"clientIP", c.ClientIP(),
 			"error", err.Error())
+		c.JSON(http.StatusUnauthorized, dto.LoginResponse{Result: false, Msg: err.Error()})
 
-		switch {
-		case errors.Is(err, myErrors.ErrInvalidToken):
-			c.JSON(http.StatusUnauthorized, dto.LoginResponse{Result: false, Msg: "无效的刷新令牌"})
-			return
-		default:
-			c.JSON(http.StatusInternalServerError, dto.LoginResponse{Result: false, Msg: "刷新令牌失败"})
-			return
-		}
+		return
 	}
 
 	// 设置新的 refreshToken 到 cookie

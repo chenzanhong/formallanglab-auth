@@ -32,6 +32,6 @@ type UserServiceImpl struct {
 }
 
 func NewUserService(userRepo repository.UserRepository, emailRepo repository.EmailRepository, jwtCfg configs.JWTConfig) UserService {
-	zlog.Infof("AccessTokenExpireTime: %d s", jwtCfg.AccessTokenExpireTime)
+	zlog.Infow("JwtCfg", "AccessTokenExpireTime", jwtCfg.AccessTokenExpireTime, "RefreshTokenExpireTime", jwtCfg.RefreshTokenExpireTime)
 	return &UserServiceImpl{userRepo: userRepo, emailRepo: emailRepo, JwtCfg: jwtCfg}
 }

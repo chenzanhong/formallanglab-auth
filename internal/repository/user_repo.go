@@ -144,19 +144,24 @@ func (r *UserRepositoryImpl) DeleteUserByName(ctx context.Context, name string) 
 	return r.DB.WithContext(ctx).Delete(&model.User{}, "name = ?", name).Error
 }
 
+// buildRefreshTokenKey 构建 refresh token 的 Redis key
+func buildRefreshTokenKey(refreshToken string) string {
+	return fmt.Sprintf("refresh_token:%s", refreshToken)
+}
+
 // SaveRefreshToken 保存 refresh token 到 Redis
 // 新机制：使用 refresh token 作为 key，用户 ID 作为 value
 func (r *UserRepositoryImpl) SaveRefreshToken(ctx context.Context, refreshToken string, username string, userID int64, expireSeconds int) error {
-	key := fmt.Sprintf("refresh_token:%s", refreshToken)
+	key := buildRefreshTokenKey(refreshToken)
 	// 保存 refresh token，设置指定的过期时间（单位：秒）
 	value := fmt.Sprintf("%s:%d", username, userID)
 
 	return r.Redis.Set(ctx, key, value, time.Duration(expireSeconds)*time.Second).Err()
 }
 
-// ValidateRefreshToken 验证refresh token是否有效
+// ValidateRefreshToken 验证 refresh token 是否有效
 func (r *UserRepositoryImpl) ValidateRefreshToken(ctx context.Context, refreshToken string) (bool, error) {
-	key := fmt.Sprintf("refresh_token:%s", refreshToken)
+	key := buildRefreshTokenKey(refreshToken)
 	_, err := r.Redis.Get(ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
 		return false, nil
@@ -168,15 +173,15 @@ func (r *UserRepositoryImpl) ValidateRefreshToken(ctx context.Context, refreshTo
 	return true, nil
 }
 
-// RevokeRefreshToken 删除refresh token
+// RevokeRefreshToken 删除 refresh token
 func (r *UserRepositoryImpl) RevokeRefreshToken(ctx context.Context, refreshToken string) error {
-	key := fmt.Sprintf("refresh_token:%s", refreshToken)
+	key := buildRefreshTokenKey(refreshToken)
 	return r.Redis.Del(ctx, key).Err()
 }
 
-// GetUserIDByRefreshToken 根据refresh token获取用户ID
+// GetUserIDByRefreshToken 根据 refresh token 获取用户 ID
 func (r *UserRepositoryImpl) GetUserNameAndIDByRefreshToken(ctx context.Context, refreshToken string) (string, int64, error) {
-	key := fmt.Sprintf("refresh_token:%s", refreshToken)
+	key := buildRefreshTokenKey(refreshToken)
 	userStr, err := r.Redis.Get(ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
 		return "", 0, fmt.Errorf("refresh token not found")
