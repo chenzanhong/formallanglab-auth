@@ -152,6 +152,7 @@ func (h *UserHandler) Logout(c *gin.Context) {
 			Result: true,
 			Msg:    "登出成功",
 		})
+
 		return
 	}
 
@@ -186,6 +187,7 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 				Result: false,
 				Msg:    "缺少刷新令牌",
 			})
+
 			return
 		}
 
@@ -202,6 +204,7 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 				Result: false,
 				Msg:    "缺少刷新令牌",
 			})
+
 			return
 		}
 		refreshToken = req.RefreshToken
