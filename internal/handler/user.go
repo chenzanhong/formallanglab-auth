@@ -118,23 +118,33 @@ func (h *UserHandler) Login(c *gin.Context) {
 		}
 	}
 
-	// 设置刷新令牌到HttpOnly Cookie中
-	c.SetCookie("refreshToken", resp.RefreshToken, 7*24*60*60, "/", "", true, true) // 7天过期
+	// 设置刷新令牌到 HttpOnly Cookie 中
+	// HTTP 环境下 Secure=false，HTTPS 环境下 Secure=true
+	secure := isRequestHTTPS(c)
+	c.SetCookie("refreshToken", resp.RefreshToken, 7*24*60*60, "/", "", secure, true) // 7 天过期
 
 	metrics.IncOperation("user", "login", "success")
 	zlog.Infow("登录成功", "user_id", resp.ID, "username", resp.Name)
-	c.JSON(http.StatusOK, dto.LoginResponse{
+
+	response := dto.LoginResponse{
 		Result:      true,
 		Msg:         "登录成功",
 		AccessToken: resp.AccessToken,
 		Name:        resp.Name,
 		ID:          resp.ID,
-	})
+	}
+
+	// HTTP 情况下也返回 refreshToken 给前端（双重保障）
+	if !secure {
+		response.RefreshToken = resp.RefreshToken
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 // Logout 处理用户登出请求
 func (h *UserHandler) Logout(c *gin.Context) {
-	// 从Cookie中获取刷新令牌
+	// 从 Cookie 中获取刷新令牌（HTTP 和 HTTPS 都支持）
 	refreshToken, err := c.Cookie("refreshToken")
 	if err != nil || refreshToken == "" {
 		// 如果没有刷新令牌，仍然返回成功登出响应
@@ -142,7 +152,6 @@ func (h *UserHandler) Logout(c *gin.Context) {
 			Result: true,
 			Msg:    "登出成功",
 		})
-
 		return
 	}
 
@@ -151,8 +160,10 @@ func (h *UserHandler) Logout(c *gin.Context) {
 		zlog.Warnw("撤销刷新令牌失败", "detail", err.Error())
 	}
 
-	// 清除Cookie中的刷新令牌
-	c.SetCookie("refreshToken", "", -1, "/", "", true, true)
+	// 清除 Cookie 中的刷新令牌
+	secure := isRequestHTTPS(c)
+	c.SetCookie("refreshToken", "", -1, "/", "", secure, true)
+
 	c.JSON(http.StatusOK, dto.LogoutResponse{
 		Result: true,
 		Msg:    "登出成功",
@@ -161,25 +172,39 @@ func (h *UserHandler) Logout(c *gin.Context) {
 
 // Refresh 处理刷新令牌请求
 func (h *UserHandler) Refresh(c *gin.Context) {
-	// 在 Nginx + Docker 架构下，Go 服务监听 HTTP，由 Nginx 处理 HTTPS 终止
-	// 通过 X-Forwarded-Proto 头判断请求是否来自 HTTPS
-	if !isRequestHTTPS(c) {
-		c.JSON(http.StatusUnauthorized, dto.LoginResponse{
-			Result: false,
-			Msg:    "仅支持 HTTPS 请求",
-		})
+	var refreshToken string
+	var err error
 
-		return
-	}
+	// 优先从 cookie 获取（HTTP 和 HTTPS 都支持）
+	refreshToken, err = c.Cookie("refreshToken")
 
-	refreshToken, err := c.Cookie("refreshToken")
+	// 如果 cookie 没有，且不是 HTTPS，尝试从请求体获取
 	if err != nil || refreshToken == "" {
-		c.JSON(http.StatusUnauthorized, dto.LoginResponse{
-			Result: false,
-			Msg:    "缺少刷新令牌",
-		})
+		if isRequestHTTPS(c) {
+			// HTTPS 情况下没有 cookie，直接返回错误
+			c.JSON(http.StatusUnauthorized, dto.LoginResponse{
+				Result: false,
+				Msg:    "缺少刷新令牌",
+			})
+			return
+		}
 
-		return
+		// HTTP 情况下，记录警告日志并从请求体获取 refreshToken
+		zlog.Warnw("Refresh token request over HTTP (not HTTPS)",
+			"clientIP", c.ClientIP(),
+			"userAgent", c.Request.UserAgent())
+
+		var req struct {
+			RefreshToken string `json:"refreshToken"`
+		}
+		if err := c.ShouldBindJSON(&req); err != nil || req.RefreshToken == "" {
+			c.JSON(http.StatusUnauthorized, dto.LoginResponse{
+				Result: false,
+				Msg:    "缺少刷新令牌",
+			})
+			return
+		}
+		refreshToken = req.RefreshToken
 	}
 
 	resp, err := h.userService.Refresh(c.Request.Context(), refreshToken)
@@ -194,20 +219,32 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 		}
 	}
 
-	c.SetCookie("refreshToken", resp.RefreshToken, 7*24*60*60, "/", "", true, true)
+	// 设置新的 refreshToken 到 cookie
+	secure := isRequestHTTPS(c)
+	c.SetCookie("refreshToken", resp.RefreshToken, 7*24*60*60, "/", "", secure, true)
 
 	c.JSON(http.StatusOK, dto.RefreshResponse{
-		Result:      true,
-		Msg:         "令牌刷新成功",
-		AccessToken: resp.AccessToken,
-		Name:        resp.Name,
-		ID:          resp.ID,
+		Result:       true,
+		Msg:          "令牌刷新成功",
+		Name:         resp.Name,
+		ID:           resp.ID,
+		AccessToken:  resp.AccessToken,
+		RefreshToken: resp.RefreshToken,
 	})
 }
 
 func isRequestHTTPS(c *gin.Context) bool {
-	// 通过反向代理（Nginx）传递的 X-Forwarded-Proto 头判断
-	return c.GetHeader("X-Forwarded-Proto") == "https"
+	// 1. 检查 X-Forwarded-Proto (Nginx 常用)
+	if c.GetHeader("X-Forwarded-Proto") == "https" {
+		return true
+	}
+
+	// 2. 检查 X-Forwarded-Ssl (某些云厂商负载均衡常用)
+	if c.GetHeader("X-Forwarded-Ssl") == "on" {
+		return true
+	}
+
+	return false
 }
 
 // ResetPassword 重置密码

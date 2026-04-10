@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS uq_users_name_enail ON users(name, email);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_users_name ON users(name);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
 INSERT INTO users(name, password, email, role)
