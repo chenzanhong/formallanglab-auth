@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/chenzanhong/formallanglab-auth/internal/domain/dto"
-	"github.com/chenzanhong/formallanglab-auth/internal/metrics"
+	"github.com/chenzanhong/formallanglab-auth/internal/middleware/metrics"
 	email "github.com/chenzanhong/formallanglab-auth/internal/service/email_s"
 )
 

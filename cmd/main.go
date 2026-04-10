@@ -18,8 +18,8 @@ import (
 
 	"github.com/chenzanhong/formallanglab-auth/configs"
 	"github.com/chenzanhong/formallanglab-auth/internal/handler"
-	mtr "github.com/chenzanhong/formallanglab-auth/internal/metrics"
-	"github.com/chenzanhong/formallanglab-auth/internal/middleware"
+	"github.com/chenzanhong/formallanglab-auth/internal/middleware/jwt"
+	mtr "github.com/chenzanhong/formallanglab-auth/internal/middleware/metrics"
 	rep "github.com/chenzanhong/formallanglab-auth/internal/repository"
 	emailSvc "github.com/chenzanhong/formallanglab-auth/internal/service/email_s"
 	kafka_s "github.com/chenzanhong/formallanglab-auth/internal/service/kafka_s"
@@ -41,7 +41,7 @@ func main() {
 	// 3. 初始化JWT
 	jwtx.InitWithHS256(
 		os.Getenv("JWT_KEY"),
-		&middleware.AccessTokenClaims{},
+		&jwt.AccessTokenClaims{},
 		jwtx.WithAutoInject(true),
 	)
 
@@ -92,7 +92,7 @@ func main() {
 	// 11. 启动 pprof http 服务（通过 PPROF_PORT 环境变量控制，默认为 6060）
 	go func() {
 		if v, ok := os.LookupEnv("PPROF_PORT"); ok && v != "" && v != "0" {
-			zlog.Info("Starting pprof on :"+v)
+			zlog.Info("Starting pprof on :" + v)
 			if err := http.ListenAndServe(":"+v, nil); err != nil {
 				zlog.Errorf("pprof server error: %v", err)
 			}

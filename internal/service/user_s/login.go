@@ -5,7 +5,7 @@ import (
 
 	"github.com/chenzanhong/formallanglab-auth/internal/domain/dto"
 	"github.com/chenzanhong/formallanglab-auth/internal/errors"
-	"github.com/chenzanhong/formallanglab-auth/internal/middleware"
+	"github.com/chenzanhong/formallanglab-auth/internal/middleware/jwt"
 	"github.com/chenzanhong/formallanglab-auth/pkg/cryptoutil"
 )
 
@@ -32,13 +32,13 @@ func (s *UserServiceImpl) Login(ctx context.Context, req *dto.LoginRequest) (res
 	}
 
 	// 生成访问令牌 (JWT)
-	accessToken, err := middleware.GenerateAccessToken(user.Name, user.ID, s.JwtCfg.AccessTokenExpireTime)
+	accessToken, err := jwt.GenerateAccessToken(user.Name, user.ID, s.JwtCfg.AccessTokenExpireTime)
 	if err != nil {
 		return nil, errors.ErrTokenGenerationFailed
 	}
 
 	// 生成刷新令牌 (随机字符串)
-	refreshToken, err := middleware.GenerateRandomRefreshToken()
+	refreshToken, err := jwt.GenerateRandomRefreshToken()
 	if err != nil {
 		return nil, errors.ErrTokenGenerationFailed
 	}

@@ -10,7 +10,7 @@ import (
 
 	"github.com/chenzanhong/formallanglab-auth/internal/domain/dto"
 	myErrors "github.com/chenzanhong/formallanglab-auth/internal/errors"
-	"github.com/chenzanhong/formallanglab-auth/internal/metrics"
+	"github.com/chenzanhong/formallanglab-auth/internal/middleware/metrics"
 	userSvc "github.com/chenzanhong/formallanglab-auth/internal/service/user_s"
 )
 

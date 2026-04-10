@@ -11,12 +11,12 @@ import (
 	"github.com/chenzanhong/formallanglab-auth/internal/domain/dto"
 	"github.com/chenzanhong/formallanglab-auth/internal/domain/model"
 	userErrors "github.com/chenzanhong/formallanglab-auth/internal/errors"
-	"github.com/chenzanhong/formallanglab-auth/internal/middleware"
+	"github.com/chenzanhong/formallanglab-auth/internal/middleware/jwt"
 	"github.com/chenzanhong/formallanglab-auth/pkg/cryptoutil"
 )
 
 func TestMain(m *testing.M) {
-	jwtx.InitWithHS256("testkey", &middleware.AccessTokenClaims{}, jwtx.WithAutoInject(true))
+	jwtx.InitWithHS256("testkey", &jwt.AccessTokenClaims{}, jwtx.WithAutoInject(true))
 	m.Run()
 }
 
