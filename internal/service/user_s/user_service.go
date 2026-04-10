@@ -8,6 +8,7 @@ import (
 	"github.com/chenzanhong/formallanglab-auth/internal/domain/dto"
 	"github.com/chenzanhong/formallanglab-auth/internal/domain/model"
 	"github.com/chenzanhong/formallanglab-auth/internal/repository"
+	"github.com/chenzanhong/zlog"
 )
 
 type UserService interface {
@@ -31,5 +32,6 @@ type UserServiceImpl struct {
 }
 
 func NewUserService(userRepo repository.UserRepository, emailRepo repository.EmailRepository, jwtCfg configs.JWTConfig) UserService {
+	zlog.Infof("AccessTokenExpireTime: %d s", jwtCfg.AccessTokenExpireTime)
 	return &UserServiceImpl{userRepo: userRepo, emailRepo: emailRepo, JwtCfg: jwtCfg}
 }

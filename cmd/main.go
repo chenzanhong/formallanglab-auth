@@ -36,11 +36,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("加载配置失败：%v", err.Error())
 	}
+
 	// 2. 设置环境变量
 	configs.SyncConfigToEnv(*config)
+
 	// 3. 初始化JWT
+	jwtKey := os.Getenv("JWT_KEY")
+	if jwtKey == "" {
+		log.Fatalf("缺少 jwt key")
+	}
 	jwtx.InitWithHS256(
-		os.Getenv("JWT_KEY"),
+		jwtKey,
 		&jwt.AccessTokenClaims{},
 		jwtx.WithAutoInject(true),
 	)
@@ -104,7 +110,7 @@ func main() {
 		if metricsPort := os.Getenv("METRICS_PORT"); metricsPort != "0" && metricsPort != "" {
 			r := gin.New()
 			r.Use(gin.Recovery())
-			zlog.Infow("Starting metrics on localhost:"+metricsPort)
+			zlog.Infow("Starting metrics on localhost:" + metricsPort)
 			r.GET("/gdesign/auth/metrics", mtr.MetricsHandler())
 			r.Run(fmt.Sprintf(":%s", metricsPort))
 		}
