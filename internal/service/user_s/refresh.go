@@ -2,6 +2,7 @@ package user_s
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/chenzanhong/formallanglab-auth/internal/domain/dto"
 	"github.com/chenzanhong/formallanglab-auth/internal/errors"
@@ -10,19 +11,23 @@ import (
 
 // Refresh 使用刷新令牌获取新的访问令牌
 func (s *UserServiceImpl) Refresh(ctx context.Context, refreshToken string) (resp *dto.LoginResponse, err error) {
+	if refreshToken == "" {
+		return nil, fmt.Errorf("refreshToken is needed")
+	}
+
 	// 验证刷新令牌是否有效
 	valid, err := s.userRepo.ValidateRefreshToken(ctx, refreshToken)
 	if err != nil {
 		return nil, errors.ErrInternal
 	}
 	if !valid {
-		return nil, errors.ErrInvalidToken
+		return nil, errors.ErrInvalidRefreshToken
 	}
 
 	// 根据刷新令牌获取用户ID
 	username, userID, err := s.GetUserNameAndIDByRefreshToken(ctx, refreshToken)
 	if err != nil {
-		return nil, errors.ErrInvalidRefreshToken
+		return nil, fmt.Errorf("GetUserNameAndIDByRefreshToken failed: %w", err)
 	}
 
 	// 生成新的访问令牌

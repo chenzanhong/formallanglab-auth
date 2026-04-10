@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -189,11 +191,16 @@ func (r *UserRepositoryImpl) GetUserNameAndIDByRefreshToken(ctx context.Context,
 	if err != nil {
 		return "", 0, err
 	}
-	var username string
-	var userID int64
-	_, err = fmt.Sscanf(userStr, "%s:%d", &username, &userID)
+
+	parts := strings.SplitN(userStr, ":", 2)
+	if len(parts) != 2 {
+		return "", 0, fmt.Errorf("invalid user ID format: %s", userStr)
+	}
+
+	username := parts[0]
+	userID, err := strconv.ParseInt(parts[1], 10, 64)
 	if err != nil {
-		return "", 0, fmt.Errorf("invalid user ID format")
+		return "", 0, fmt.Errorf("invalid user ID format: %s", userStr)
 	}
 
 	return username, userID, nil
