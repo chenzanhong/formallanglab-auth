@@ -104,7 +104,7 @@ func main() {
 		if metricsPort := os.Getenv("METRICS_PORT"); metricsPort != "0" && metricsPort != "" {
 			r := gin.New()
 			r.Use(gin.Recovery())
-			zlog.Infow("Starting metrics on localhost:", metricsPort)
+			zlog.Infow("Starting metrics on localhost:"+metricsPort)
 			r.GET("/gdesign/auth/metrics", mtr.MetricsHandler())
 			r.Run(fmt.Sprintf(":%s", metricsPort))
 		}
