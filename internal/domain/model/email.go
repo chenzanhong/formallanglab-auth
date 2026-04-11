@@ -1,17 +1,8 @@
 package model
 
 type KafkaEmailEvent struct {
-	To          string `json:"to"`
-	Subject     string `json:"subject"`
-	ContentType string `json:"content_type"` // e.g., "text/html"
-	Body        string `json:"body"`
-	// Type        EmailType `json:"type"` // e.g., "register", "reset"
-	Timestamp int64 `json:"timestamp"`
+	To          string `json:"to"`           // 接收人的邮箱
+	Subject     string `json:"subject"`      // 邮件主题
+	ContentType string `json:"content_type"` // 例如 "text/html"
+	Body        string `json:"body"`         // 邮件正文内容
 }
-
-// type EmailType string
-
-// const (
-// 	EmailTypeRegister EmailType = "register"
-// 	EmailTypeResetPwd EmailType = "resetPwd"
-// )
