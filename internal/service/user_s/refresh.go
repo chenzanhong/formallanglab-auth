@@ -24,7 +24,7 @@ func (s *UserServiceImpl) Refresh(ctx context.Context, refreshToken string) (res
 		return nil, errors.ErrInvalidRefreshToken
 	}
 
-	// 根据刷新令牌获取用户ID
+	// 根据刷新令牌获取用户 ID
 	username, userID, err := s.GetUserNameAndIDByRefreshToken(ctx, refreshToken)
 	if err != nil {
 		return nil, fmt.Errorf("GetUserNameAndIDByRefreshToken failed: %w", err)

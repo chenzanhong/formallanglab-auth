@@ -19,7 +19,7 @@ type UserService interface {
 	Refresh(ctx context.Context, refreshToken string) (*dto.LoginResponse, error)
 	// RevokeRefreshToken 撤销用户的刷新令牌
 	RevokeRefreshToken(ctx context.Context, refreshToken string) error
-	// GetUserIDByRefreshToken 根据刷新令牌获取用户ID
+	// GetUserIDByRefreshToken 根据刷新令牌获取用户 ID
 	GetUserNameAndIDByRefreshToken(ctx context.Context, refreshToken string) (string, int64, error)
 	ResetPassword(ctx context.Context, token, newPassword string) error
 	GetUser(ctx context.Context, userID int64) (*model.User, error)

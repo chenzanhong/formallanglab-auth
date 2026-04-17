@@ -21,9 +21,9 @@ const (
 	EmailTypeRegister = "register"
 	EmailTypeResetPwd = "reset"
 
-	// ⏱️ 请求间隔限制：1分钟内只能发1次（防刷）
+	// ⏱️ 请求间隔限制：1 分钟内只能发 1 次（防刷）
 	EmailSendRateLimitTTL = 1 * time.Minute
-	// 验证码有效期保持1分钟
+	// 验证码有效期保持 1 分钟
 	VerificationTokenTTL = 1 * time.Minute
 )
 

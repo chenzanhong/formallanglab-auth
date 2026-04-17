@@ -13,15 +13,15 @@ import (
 func SetupRouter(userHandler *UserHandler, emailHandler *EmailHandler) *gin.Engine {
 	router := gin.Default()
 
-	// 1. 恢复中间件 - 最先使用，捕获所有panic
+	// 1. 恢复中间件 - 最先使用，捕获所有 panic
 	// router.Use(gin.Recovery())
 
-	// 2. 请求ID中间件 - 尽早设置，让后续中间件都能使用
+	// 2. 请求 ID 中间件 - 尽早设置，让后续中间件都能使用
 	router.Use(requestid.RequestID())
 	// 3. 全局速率限制 - 在处理请求初期进行限制，避免资源浪费，
-	// 但为了与UserRateLimitMiddleware不重复，只在后面的公共路由组添加
+	// 但为了与 UserRateLimitMiddleware 不重复，只在后面的公共路由组添加
 	// router.Use(rate.GlobalRateLimitMiddleware())
-	// 4. CORS中间件 - 尽早处理跨域请求，避免不必要的后续处理
+	// 4. CORS 中间件 - 尽早处理跨域请求，避免不必要的后续处理
 	router.Use(cors.CORSMiddleware())
 	// 5. 指标收集 - 收集所有处理过程的指标
 	router.Use(metrics.HTTPMiddleware())
@@ -44,7 +44,7 @@ func setupPublicRoutes(router *gin.RouterGroup, userHandler *UserHandler, emailH
 		c.JSON(200, gin.H{
 			"status": "ok",
 		})
-	}) // 不需要限速；prometheus.yml中加上 metrics_path: /metrics
+	}) // 不需要限速；prometheus.yml 中加上 metrics_path: /metrics
 	router.POST("/register", rate.GlobalRateLimitMiddleware(), userHandler.Register)                            // 注册
 	router.POST("/login", rate.GlobalRateLimitMiddleware(), userHandler.Login)                                  // 登入
 	router.POST("/logout", rate.GlobalRateLimitMiddleware(), userHandler.Logout)                                // 登出

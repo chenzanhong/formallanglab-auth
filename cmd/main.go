@@ -40,7 +40,7 @@ func main() {
 	// 2. 设置环境变量
 	configs.SyncConfigToEnv(*config)
 
-	// 3. 初始化JWT
+	// 3. 初始化 JWT
 	jwtKey := os.Getenv("JWT_KEY")
 	if jwtKey == "" {
 		log.Fatalf("缺少 jwt key")

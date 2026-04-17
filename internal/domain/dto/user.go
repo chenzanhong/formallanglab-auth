@@ -37,7 +37,7 @@ type RefreshResponse = LoginResponse
 
 // 用户重置密码
 type ResetPasswordRequest struct {
-	Token       string `json:"token"` // 邮件收到的验证码，不是登录token
+	Token       string `json:"token"` // 邮件收到的验证码，不是登录 token
 	NewPassword string `json:"newPwd"`
 }
 
