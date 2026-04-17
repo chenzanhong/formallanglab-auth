@@ -4,11 +4,12 @@ package user_s
 import (
 	"context"
 
+	"github.com/chenzanhong/zlog"
+
 	"github.com/chenzanhong/formallanglab-auth/configs"
 	"github.com/chenzanhong/formallanglab-auth/internal/domain/dto"
 	"github.com/chenzanhong/formallanglab-auth/internal/domain/model"
 	"github.com/chenzanhong/formallanglab-auth/internal/repository"
-	"github.com/chenzanhong/zlog"
 )
 
 type UserService interface {

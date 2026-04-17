@@ -14,6 +14,6 @@ var (
 	ErrInvalidRefreshToken          = fmt.Errorf("无效的refreshToken")
 	ErrAccessTokenGenerationFailed  = fmt.Errorf("accessToken生成失败")
 	ErrRefreshTokenGenerationFailed = fmt.Errorf("refreshToken生成失败")
-	ErrRefreshTokenSaveFailed              = fmt.Errorf("refreshToken保存失败")
-	ErrRefreshTokenRevokeFailed            = fmt.Errorf("refreshToken撤销失败")
+	ErrRefreshTokenSaveFailed       = fmt.Errorf("refreshToken保存失败")
+	ErrRefreshTokenRevokeFailed     = fmt.Errorf("refreshToken撤销失败")
 )
