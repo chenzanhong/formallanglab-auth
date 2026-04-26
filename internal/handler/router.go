@@ -26,7 +26,7 @@ func SetupRouter(userHandler *UserHandler, emailHandler *EmailHandler) *gin.Engi
 	// 5. 指标收集 - 收集所有处理过程的指标
 	router.Use(metrics.HTTPMiddleware())
 
-	auth := router.Group("/gdesign/auth")
+	auth := router.Group("/formallanglab/auth")
 	setupPublicRoutes(auth, userHandler, emailHandler) // 注册公开路由
 	// setupAuthRoutes(router, userHandler, aiHandler, learnHandler) // 注册需要认证的路由
 	auth.GET("/me", jwtx.GinJWTAuthMiddleware(), userHandler.CheckMe)

@@ -111,7 +111,7 @@ func main() {
 			r := gin.New()
 			r.Use(gin.Recovery())
 			zlog.Infow("Starting metrics on localhost:" + metricsPort)
-			r.GET("/gdesign/auth/metrics", mtr.MetricsHandler())
+			r.GET("/formallanglab/auth/metrics", mtr.MetricsHandler())
 			r.Run(fmt.Sprintf(":%s", metricsPort))
 		}
 	}()

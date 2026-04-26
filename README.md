@@ -209,25 +209,25 @@ backend/auth/
 
 #### 用户注册
 
-- **路由**：`POST /gdesign/auth/register`
+- **路由**：`POST /formallanglab/auth/register`
 - **功能**：创建新用户账户
 - **流程**：验证邮箱 → 检查唯一性 → 密码加密 → 创建用户 → 返回令牌
 
 #### 用户登录
 
-- **路由**：`POST /gdesign/auth/login`
+- **路由**：`POST /formallanglab/auth/login`
 - **功能**：用户身份验证
 - **响应**：Access Token + Refresh Token（通过 Cookie 返回）
 
 #### 刷新令牌
 
-- **路由**：`POST /gdesign/auth/refresh`
+- **路由**：`POST /formallanglab/auth/refresh`
 - **功能**：使用 Refresh Token 获取新的 Access Token
 - **机制**：验证 Refresh Token → 签发新令牌对
 
 #### 用户登出
 
-- **路由**：`POST /gdesign/auth/logout`
+- **路由**：`POST /formallanglab/auth/logout`
 - **功能**：注销当前用户的令牌
 - **操作**：清除 Refresh Token 记录，前端清空本地状态
 
@@ -235,13 +235,13 @@ backend/auth/
 
 #### 获取用户信息
 
-- **路由**：`GET /gdesign/auth/user/info`
+- **路由**：`GET /formallanglab/auth/user/info`
 - **认证**：JWT Token
 - **功能**：获取当前登录用户的基本信息
 
 #### 更新用户信息
 
-- **路由**：`PUT /gdesign/auth/user/info`
+- **路由**：`PUT /formallanglab/auth/user/info`
 - **认证**：JWT Token
 - **功能**：更新用户基本信息（昵称、头像等）
 
@@ -249,13 +249,13 @@ backend/auth/
 
 #### 发送注册验证码
 
-- **路由**：`POST /gdesign/auth/email/send-register-code`
+- **路由**：`POST /formallanglab/auth/email/send-register-code`
 - **功能**：向指定邮箱发送注册验证码
 - **限制**：1 分钟内只能发送 1 次
 
 #### 发送重置密码验证码
 
-- **路由**：`POST /gdesign/auth/email/send-reset-code`
+- **路由**：`POST /formallanglab/auth/email/send-reset-code`
 - **功能**：向指定邮箱发送密码重置验证码
 - **限制**：1 分钟内只能发送 1 次
 
